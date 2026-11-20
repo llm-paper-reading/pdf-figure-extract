@@ -1,9 +1,12 @@
 ---
 name: pdf-figure-extract
 description: 从论文 PDF 中安全抽取 Figure 为 PNG/SVG，保证不贴边裁剪、不含论文自带 caption、可校验。用于把 arXiv/会议 PDF 中的架构图、曲线图、流程图抽取到静态站点或文档的图片目录。触发场景：用户说"从论文抽取 Figure N"、"裁一张论文图"、"把 PDF 里的架构图拿出来"、"论文图片 404 / 撕裂 / 被切边"。
+license: MIT
+compatibility: Requires Python 3.10+ with PyMuPDF, Pillow and numpy; poppler (pdftocairo) for SVG; librsvg (rsvg-convert) for SVG border checks.
 metadata:
-  version: "1.0.0"
-  license: MIT
+  author: xu-song
+  version: "1.1.0"
+  repository: https://github.com/llm-paper-reading/pdf-figure-extract
 ---
 
 # PDF Figure Extract
@@ -22,7 +25,7 @@ metadata:
 
 1. **下载 PDF 放进临时目录**，不要在站点图片目录里直接操作。
 2. **定位 Figure**：用 `pdftotext -layout` 或 fitz 找到 `Figure N:` 所在页与 caption 位置。
-3. **抽取**（脚本在 `${CLAUDE_SKILL_DIR}/scripts/`）：
+3. **抽取**（脚本在本 skill 目录的 `scripts/` 下）：
    - 矢量图（架构/示意图优先）→ `extract_svg.py` 转 SVG，任意缩放不失真；
    - 位图 / 通用 → `extract_fig.py` PNG 模式，自动注入白边。
 4. **校验**：
@@ -40,7 +43,7 @@ metadata:
 
 ## 三段脚本
 
-前置依赖：Python 3.10+（pymupdf、Pillow、numpy），poppler（`pdftocairo`），librsvg（`rsvg-convert`，仅检查 SVG 时需要）。
+前置依赖见 frontmatter 的 `compatibility`：Python 3.10+（pymupdf、Pillow、numpy）、poppler（`pdftocairo`）、librsvg（`rsvg-convert`，仅检查 SVG 时需要）。
 
 ```bash
 # PNG：caption 锚定 + 自动白边 + 边界自检；fig 支持 "1" 或章节编号 "3.1"

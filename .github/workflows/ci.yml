@@ -13,6 +13,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -20,5 +23,11 @@ jobs:
           brew install poppler
       - name: Run offline tests
         run: python -m pytest tests/ -q
+      - name: Validate Claude plugin manifests
+        run: |
+          npm install -g @anthropic-ai/claude-code --no-fund --no-audit
+          claude plugin validate . --strict
+      - name: Check cross-harness skill discovery
+        run: npx -y skills add . --list
       - name: Run README smoke tests (network)
         run: python -m pytest tests/test_readme_commands.py --net -q

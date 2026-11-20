@@ -18,7 +18,7 @@ import fitz
 import pytest
 
 # 让测试直接 import scripts/ 下的模块
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills" / "pdf-figure-extract" / "scripts"))
 
 
 def line_bboxes(page, needle):

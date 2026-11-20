@@ -1,0 +1,6 @@
+interface:
+  display_name: "PDF Figure Extract"
+  short_description: "从论文 PDF 中安全抽取 Figure 为 PNG/SVG"
+  default_prompt: "Use $pdf-figure-extract to extract Figure 2 from this paper PDF."
+policy:
+  allow_implicit_invocation: true

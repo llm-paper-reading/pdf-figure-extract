@@ -1,0 +1,19 @@
+{
+  "name": "pdf-figure-extract",
+  "version": "1.1.0",
+  "description": "从论文 PDF 中安全抽取 Figure 为 PNG/SVG：不贴边裁剪、不含论文自带 caption、可自动校验。",
+  "author": {
+    "name": "xu-song",
+    "url": "https://github.com/llm-paper-reading"
+  },
+  "homepage": "https://github.com/llm-paper-reading/pdf-figure-extract",
+  "repository": "https://github.com/llm-paper-reading/pdf-figure-extract",
+  "license": "MIT",
+  "keywords": [
+    "pdf",
+    "figure-extraction",
+    "arxiv",
+    "svg",
+    "png"
+  ]
+}

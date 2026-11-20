@@ -1,9 +1,11 @@
 # pdf-figure-extract
 
-[![Claude Skill](https://img.shields.io/badge/Claude-Code%20Skill-blueviolet)](https://claude.com/claude-code)
+[![Claude Skill](https://img.shields.io/badge/Claude-Code%20Skill-blueviolet)](https://code.claude.com/docs/en/skills)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-10b981)](https://agentskills.io)
+[![skills.sh](https://skills.sh/b/llm-paper-reading/pdf-figure-extract)](https://skills.sh/llm-paper-reading/pdf-figure-extract)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-从论文 PDF 中安全抽取 Figure 为 **PNG / SVG** 的 [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills)。
+从论文 PDF 中安全抽取 Figure 为 **PNG / SVG** 的通用 Agent Skill，遵循 [Agent Skills 开放规范](https://agentskills.io)，可用于 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
 
 杜绝抽图最常见的四类问题：
 
@@ -12,16 +14,76 @@
 - 🔗 **双栏误判** —— 把另一栏的图或正文并进同一张图
 - ❌ **图 404** —— 只写了引用没产出文件
 
+## 支持平台
+
+| 客户端 | 加载位置 | 安装方式 |
+|---|---|---|
+| Claude Code | `.claude/skills/`、`~/.claude/skills/` | skills CLI / plugin / 源码 |
+| Codex CLI | `.agents/skills/`、`~/.agents/skills/` | skills CLI / 源码 |
+| Cursor、Cline、Gemini CLI、Windsurf、GitHub Copilot、OpenCode 等 | `.agents/skills/`、`~/.agents/skills/` | skills CLI / 源码 |
+| 其他 Agent Skills 客户端 | 见各自文档 | 源码（`install.sh` 软链） |
+
 ## 安装
 
-```bash
-# 项目级安装（推荐，随仓库版本管理）
-mkdir -p .claude/skills
-git clone git@github.com:llm-paper-reading/pdf-figure-extract.git .claude/skills/pdf-figure-extract
+### 方式一：skills CLI（推荐，自动识别已装客户端）
 
-# 或用户级安装（所有项目可用）
-git clone git@github.com:llm-paper-reading/pdf-figure-extract.git ~/.claude/skills/pdf-figure-extract
+```bash
+# 项目级，交互选择要装给哪些 agent
+npx skills add llm-paper-reading/pdf-figure-extract
+
+# 只装给 Claude Code 与 Codex，用户级，免交互
+npx skills add llm-paper-reading/pdf-figure-extract -g -a claude-code -a codex -y
+
+# 固定版本
+npx skills add llm-paper-reading/pdf-figure-extract@v1.1.0 -a claude-code
 ```
+
+### 方式二：Claude Code 插件
+
+```bash
+claude plugin marketplace add llm-paper-reading/pdf-figure-extract
+claude plugin install pdf-figure-extract@llm-paper-reading-skills
+```
+
+也可在 Claude Code 会话内一步完成：
+
+```text
+/plugin install pdf-figure-extract --marketplace llm-paper-reading/pdf-figure-extract
+```
+
+### 方式三：源码安装
+
+```bash
+git clone https://github.com/llm-paper-reading/pdf-figure-extract.git
+cd pdf-figure-extract
+
+# 默认装给 Claude Code（用户级软链接）
+./install.sh
+
+# 装给 Codex / Cursor 等（~/.agents/skills）
+./install.sh -a codex
+
+# 同时装给多个客户端；-p 装到当前项目；--copy 复制而非软链
+./install.sh -a claude-code,codex
+cd your-project && /path/to/pdf-figure-extract/install.sh -p -a claude-code
+
+# 查看目标路径或覆盖已存在安装
+./install.sh --list
+./install.sh --force
+```
+
+手动软链等价写法：
+
+```bash
+# Claude Code
+ln -s "$PWD/skills/pdf-figure-extract" ~/.claude/skills/pdf-figure-extract
+# Codex / Cursor / Cline 等
+ln -s "$PWD/skills/pdf-figure-extract" ~/.agents/skills/pdf-figure-extract
+```
+
+### 方式四：直接放进项目
+
+把 `skills/pdf-figure-extract/` 整个目录复制到项目的 `.claude/skills/` 或 `.agents/skills/` 下即可，目录名保持 `pdf-figure-extract`。
 
 ## 依赖
 
@@ -34,7 +96,7 @@ git clone git@github.com:llm-paper-reading/pdf-figure-extract.git ~/.claude/skil
 
 ## 使用
 
-安装后对 Claude 说「从论文抽取 Figure 2」即可自动触发；也可直接调脚本：
+安装后对 agent 说「从论文抽取 Figure 2」即可自动触发；也可直接调脚本（脚本位于本 skill 目录的 `scripts/` 下）：
 
 ```bash
 cd /tmp && mkdir work && cd work
@@ -62,7 +124,7 @@ python <skill-dir>/scripts/check_border.py path/to/images/
 2. **安全边距**：PNG 模式注入 1.2% 白边后自检四边；SVG 模式校验 clip 矩形边界；
 3. **背景感知**：边界检查以四角颜色估计背景，深色主题图不误报。
 
-详细设计、已知坑与对策见 [SKILL.md](SKILL.md)。
+详细设计、已知坑与对策见 [skills/pdf-figure-extract/SKILL.md](skills/pdf-figure-extract/SKILL.md)。
 
 ## 已验证场景
 
@@ -77,12 +139,24 @@ python <skill-dir>/scripts/check_border.py path/to/images/
 - 网页 / 博客截图来源（非 PDF）：贴边只能重新截图；
 - 跨页图：需手工处理。
 
+## 目录结构
+
+```text
+pdf-figure-extract/
+├── plugin.json                  # 通用 Agent Plugins 清单
+├── .claude-plugin/              # Claude Code 插件与 marketplace 清单、图标
+├── skills/pdf-figure-extract/   # 技能本体（SKILL.md + scripts + Codex 元数据）
+├── tests/                       # 单元、回归、CLI、README 冒烟、打包校验
+├── install.sh                   # 源码安装（软链 / 复制到各 agent 目录）
+└── AGENTS.md                    # 给仓库内编码 agent 的约定
+```
+
 ## 测试
 
 ```bash
 pip install -r requirements-dev.txt
 
-# 离线单元 + 回归 + CLI 测试（合成 PDF 夹具，无需网络）
+# 离线：单元 + 回归 + CLI + 打包校验
 python -m pytest tests/ -q
 
 # README 命令逐条冒烟（联网下载 arXiv PDF）
@@ -94,7 +168,8 @@ python -m pytest tests/test_readme_commands.py --net -q
 - `tests/test_unit.py`：caption 锚定（含章节编号、无交叉误配）、边界墨迹检测（含深色背景不误报）、错误路径；
 - `tests/test_regression.py`：历史 bug 回归（图内图例 TXT 块被切、两脚本 figure_clip 行为一致性）；
 - `tests/test_cli.py`：CLI 退出码、`--clip` 跳过 caption 查找、PNG 白边注入、check_border 目录扫描；
-- `tests/test_readme_commands.py`：README 示例命令原样执行（默认跳过，`--net` 开启）——README 页码写错这类问题由此拦截。
+- `tests/test_readme_commands.py`：README 示例命令原样执行（默认跳过，`--net` 开启）；
+- `tests/test_packaging.py`：frontmatter 规范、三处版本号一致、marketplace 条目、`install.sh` 行为。
 
 ## License
 

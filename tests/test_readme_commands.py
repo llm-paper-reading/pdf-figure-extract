@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "skills" / "pdf-figure-extract" / "scripts"
 FA_PDF = "https://arxiv.org/pdf/2205.14135"
 VLLM_PDF = "https://arxiv.org/pdf/2309.06180"
 

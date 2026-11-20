@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "llm-paper-reading-skills",
+  "description": "llm-paper-reading 的 Agent Skills 集合",
+  "owner": {
+    "name": "llm-paper-reading"
+  },
+  "plugins": [
+    {
+      "name": "pdf-figure-extract",
+      "displayName": "PDF Figure Extract",
+      "description": "从论文 PDF 中安全抽取 Figure 为 PNG/SVG，杜绝贴边裁剪、caption 混入与图片 404。",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/llm-paper-reading/pdf-figure-extract"
+    }
+  ]
+}

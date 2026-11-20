@@ -9,7 +9,7 @@ import pytest
 from conftest import line_bboxes
 from extract_fig import figure_clip, find_caption
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "skills" / "pdf-figure-extract" / "scripts"
 
 
 def run(script, *args):
