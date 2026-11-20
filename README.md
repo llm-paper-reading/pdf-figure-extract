@@ -16,7 +16,41 @@
 
 ## 效果对比：从 PDF 抽取 vs 官方仓库图片
 
-以 NeurIPS 2023 论文 [One Fits All（arXiv:2302.11939）](https://arxiv.org/abs/2302.11939) 为例。其[官方仓库](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)提供了现成的 `pic/main_result.png` 与 `pic/model_structure.png`，与本技能从 PDF 抽出的同名图对比：
+以 **FlashAttention**（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）为例。其[官方仓库](https://github.com/Dao-AILab/flash-attention) README 里使用的 `assets/flashattn_banner.jpg` 正是论文 **Figure 1**：
+
+**Figure 1：算法示意与加速效果**
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG"><br>
+<sub>官方仓库 <code>assets/flashattn_banner.jpg</code>：JPEG 有损，1650×645，315 KB</sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/comparison/flash-attention-figure1.svg" alt="本技能抽取的 Figure 1"><br>
+<sub>本技能抽取：SVG 矢量，160 KB，<b>任意放大不失真</b></sub>
+</td>
+</tr>
+</table>
+
+| 产出 | 格式 | 尺寸 | 文件大小 | 说明 |
+|---|---|---|---|---|
+| 官方仓库 `flashattn_banner.jpg` | JPEG（有损） | 1650×645 | 315 KB | 位图，放大可见压缩噪点 |
+| 本技能 `extract_svg.py` | SVG 矢量 | 无限缩放 | **160 KB** | 文字与线条是路径，可直接用于网页 |
+| 本技能 `extract_fig.py` | PNG（无损） | **1808×753** | **154 KB** | 300 dpi，体积约为 JPG 的一半 |
+
+结论：
+
+- **更清晰**：矢量图优先走 SVG，文字与线条是路径而非像素，放大到任意倍率都不糊；同一张图的 PNG 输出（1808×753）也比官方 JPG（1650×645）分辨率更高；
+- **通常更小**：这张图 SVG 160 KB、PNG 154 KB，分别约为官方 JPG 的 51% 和 49%，且没有 JPEG 压缩噪点；
+- **不夹带图注**：以 caption 为锚点，天然停在 `Figure N: ...` 之前（官方图片带图注的情形见下方 One Fits All 例子）；
+- **不依赖作者是否提供图片**：绝大多数论文没有官方图片文件，本技能对任意 PDF 都能产出结果；
+- **可复现、可抽查**：一条命令生成并自检四边墨迹，可写进 CI，换版本或换图后重新跑。
+
+<details>
+<summary><b>另一个例子：One Fits All（官方图片把图注也截了进去）</b></summary>
+
+以 NeurIPS 2023 论文 [One Fits All（arXiv:2302.11939）](https://arxiv.org/abs/2302.11939) 为例，其[官方仓库](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)的图片把图注一起截了进去：
 
 **Figure 1：各任务性能对比（雷达图）**
 
@@ -28,7 +62,7 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/one-fits-all-figure1.svg" alt="本技能抽取的图"><br>
-<sub>本技能抽取：SVG 矢量，140 KB，<b>不含图注</b>，任意放大不失真</sub>
+<sub>本技能抽取：SVG 矢量，140 KB，<b>不含图注</b></sub>
 </td>
 </tr>
 </table>
@@ -43,7 +77,7 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/one-fits-all-figure2.svg" alt="本技能抽取的模型架构图"><br>
-<sub>本技能抽取：SVG（含 11 个内嵌位图）279 KB，<b>不含图注</b>；同一张图用 PNG 模式输出仅 153 KB</sub>
+<sub>本技能抽取：SVG（含 11 个内嵌位图）279 KB，<b>不含图注</b>；同图 PNG 模式仅 153 KB</sub>
 </td>
 </tr>
 </table>
@@ -59,15 +93,11 @@
 | Figure 2 | 本技能 `extract_svg.py` | SVG（含 11 个内嵌位图） | 无限缩放 | 279 KB | ✓ 不含 |
 | Figure 2 | 本技能 `extract_fig.py` | PNG 300 dpi | 1484×863 | **153 KB** | ✓ 不含 |
 
-结论：
+注意：这个例子里 Figure 2 的矢量路径与内嵌图标较复杂，SVG（279 KB）反而大于官方 PNG（221 KB），此时用 PNG 模式（153 KB）更划算。文件大小取决于图的复杂度，**「更小」不是必然**。
 
-- **更清晰**：矢量图优先走 SVG，文字与线条是路径而非像素，放大到任意倍率都不糊；必须用位图时，300 dpi 输出（2049×1159）也高于官方仓库常见的 1000 px 级别；
-- **通常更小**：Figure 1 的 SVG 只有官方 PNG 的 36%；但**不保证**——Figure 2 的矢量路径与内嵌图标更复杂，SVG 反而比官方 PNG 大（279 KB vs 221 KB），这种情况用 PNG 模式更划算（153 KB）；
-- **不夹带图注**：官方仓库的两张图都把 `Figure N: ...` 图注和正文一起截了进去，放进网页要再处理一次；本技能以 caption 为锚点，天然停在图注之前；
-- **不依赖作者是否提供图片**：绝大多数论文没有官方图片目录，本技能对任意 PDF 都能产出结果；
-- **可复现、可抽查**：一条命令生成并自检，能写进 CI，换版本或换图后可重新跑。
+</details>
 
-> 对比图中的图形版权归论文作者，论文采用 [CC BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/) 许可，仅用于非商业展示，不在本仓库 MIT 许可范围内。官方仓库图片未复制进本仓库，仅通过原始链接引用。详见 [docs/comparison/README.md](docs/comparison/README.md)。
+> 对比图中的图形版权归各论文作者。FlashAttention 的图形同样发布在 BSD-3-Clause 的官方仓库中；One Fits All 论文采用 [CC BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/) 许可，其对比图仅用于非商业展示。官方图片均未复制进本仓库，仅通过原始链接展示。详见 [docs/comparison/README.md](docs/comparison/README.md)。
 
 ## 支持平台
 

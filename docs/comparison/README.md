@@ -2,13 +2,26 @@
 
 本目录中的 SVG 由本技能从论文 PDF 直接抽取，仅用于 README 的效果对比。
 
-## 来源
+## 素材一：FlashAttention（README 默认示例）
 
-- Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, Rong Jin. *One Fits All: Power General Time Series Analysis by Pretrained LM*. NeurIPS 2023 Spotlight. [arXiv:2302.11939](https://arxiv.org/abs/2302.11939)
-- 官方代码仓库：[DAMO-DI-ML/NeurIPS2023-One-Fits-All](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)
+- 论文：Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, Christopher Ré. *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*. NeurIPS 2022. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)
+- 官方仓库：[Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)，BSD-3-Clause
+- 对应官方图片：`assets/flashattn_banner.jpg`（仓库 README 顶部图，即论文 Figure 1）
+- 生成命令：
+
+```bash
+curl -sL -o fa.pdf https://arxiv.org/pdf/2205.14135
+python <skill-dir>/scripts/extract_svg.py fa.pdf 2 1 flash-attention-figure1.svg
+```
+
+- 论文许可：[arXiv non-exclusive distribution license 1.0](http://arxiv.org/licenses/nonexclusive-distrib/1.0/)；图形内容同时随 BSD-3-Clause 的官方仓库发布。
+
+## 素材二：One Fits All
+
+- 论文：Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, Rong Jin. *One Fits All: Power General Time Series Analysis by Pretrained LM*. NeurIPS 2023 Spotlight. [arXiv:2302.11939](https://arxiv.org/abs/2302.11939)
+- 官方仓库：[DAMO-DI-ML/NeurIPS2023-One-Fits-All](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)
 - 论文许可：[CC BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-## 生成命令
+- 生成命令：
 
 ```bash
 curl -sL -o ofa.pdf https://arxiv.org/pdf/2302.11939
@@ -18,6 +31,7 @@ python <skill-dir>/scripts/extract_svg.py ofa.pdf 4 2 one-fits-all-figure2.svg  
 
 ## 版权
 
-- SVG 中的图形内容版权归论文作者所有，按 CC BY-NC-SA 4.0 使用，**不得商用**；
-- 本目录内容不在仓库根目录 MIT 许可的覆盖范围内；
-- README 中引用的官方仓库图片未复制进本仓库，仅通过 GitHub 原始链接展示，版权归原作者所有。
+- 图形内容版权归各论文作者所有；
+- One Fits All 的对比图按 CC BY-NC-SA 4.0 使用，**不得商用**；
+- README 中引用的官方仓库图片未复制进本仓库，仅通过 GitHub 原始链接展示，版权归原作者所有；
+- 本目录内容不在仓库根目录 MIT 许可的覆盖范围内。如权利人希望移除相关素材，请开 issue 说明，我们会尽快处理。
