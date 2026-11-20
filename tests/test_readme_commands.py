@@ -15,15 +15,6 @@ FA_PDF = "https://arxiv.org/pdf/2205.14135"
 VLLM_PDF = "https://arxiv.org/pdf/2309.06180"
 
 
-def pytest_collection_modifyitems(config, items):
-    if config.getoption("--net"):
-        return
-    skip = pytest.mark.skip(reason="network test, run with --net")
-    for item in items:
-        if "net" in item.keywords:
-            item.add_marker(skip)
-
-
 def run(*args, cwd):
     return subprocess.run(
         [sys.executable, str(SCRIPTS / args[0]), *map(str, args[1:])],

@@ -17,6 +17,16 @@ def pytest_addoption(parser):
 import fitz
 import pytest
 
+
+def pytest_collection_modifyitems(config, items):
+    """--net 未指定时跳过联网用例（hook 必须放在 conftest，测试模块里不生效）。"""
+    if config.getoption("--net"):
+        return
+    skip = pytest.mark.skip(reason="network test, run with --net")
+    for item in items:
+        if "net" in item.keywords:
+            item.add_marker(skip)
+
 # 让测试直接 import scripts/ 下的模块
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills" / "pdf-figure-extract" / "scripts"))
 
