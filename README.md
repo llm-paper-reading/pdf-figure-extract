@@ -16,7 +16,9 @@
 
 ## 效果对比：从 PDF 抽取 vs 官方仓库图片
 
-以 NeurIPS 2023 论文 [One Fits All（arXiv:2302.11939）](https://arxiv.org/abs/2302.11939) 为例。其[官方仓库](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)提供了现成的 `pic/main_result.png`，与本技能从 PDF 抽出的同名图对比：
+以 NeurIPS 2023 论文 [One Fits All（arXiv:2302.11939）](https://arxiv.org/abs/2302.11939) 为例。其[官方仓库](https://github.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All)提供了现成的 `pic/main_result.png` 与 `pic/model_structure.png`，与本技能从 PDF 抽出的同名图对比：
+
+**Figure 1：各任务性能对比（雷达图）**
 
 <table>
 <tr>
@@ -27,6 +29,21 @@
 <td width="50%" align="center">
 <img src="docs/comparison/one-fits-all-figure1.svg" alt="本技能抽取的图"><br>
 <sub>本技能抽取：SVG 矢量，140 KB，<b>不含图注</b>，任意放大不失真</sub>
+</td>
+</tr>
+</table>
+
+**Figure 2：模型架构（Model architecture）**
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="https://raw.githubusercontent.com/DAMO-DI-ML/NeurIPS2023-One-Fits-All/main/pic/model_structure.png" alt="官方仓库模型架构图"><br>
+<sub>官方仓库 <code>pic/model_structure.png</code>：PNG 位图 1474×822，221 KB，<b>图注被一起截进图片</b></sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/comparison/one-fits-all-figure2.svg" alt="本技能抽取的模型架构图"><br>
+<sub>本技能抽取：SVG（含 11 个内嵌位图）279 KB，<b>不含图注</b>；同一张图用 PNG 模式输出仅 153 KB</sub>
 </td>
 </tr>
 </table>
