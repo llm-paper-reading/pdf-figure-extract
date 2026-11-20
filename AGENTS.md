@@ -14,6 +14,7 @@ pdf-figure-extract/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml             # Codex/ChatGPT 展示元数据（可选）
 │   └── scripts/                       # 抽图与边界检查脚本
+├── docs/comparison/                   # README 效果对比素材（CC BY-NC-SA，非 MIT）
 ├── tests/                             # 单元 + 回归 + CLI + README 冒烟 + 打包校验
 ├── install.sh                         # 源码安装脚本（软链/复制到各 agent 目录）
 └── .github/workflows/ci.yml
