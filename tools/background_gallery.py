@@ -110,8 +110,8 @@ def inspect_source(entry, clip):
 
 
 def bg_kind(bg):
-    if bg["opaque"] < 0.5 and bg.get("bg_luma") is None:
-        return "透明"
+    if bg["opaque"] < 0.5:
+        return "透明画布"
     luma = bg.get("bg_luma")
     if luma is not None and luma < 0.35:
         return "自带深色底"
@@ -167,9 +167,19 @@ def props_html(meta):
         ("背景亮度 / 墨色", f"{num(bg.get('bg_luma'))} / {num(bg.get('ink'))}"),
         ("暗墨 / 亮墨占比", f"{bg.get('dark', 0):.2f} / {bg.get('light', 0):.2f}"),
     ]
-    body = "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>"
-                   for k, v in rows)
-    return f'<details class="props"><summary>PDF 原图属性</summary><table>{body}</table></details>'
+    body = "".join(
+        f'<div class="chip"><span class="k">{html.escape(k)}</span>'
+        f'<span class="v">{html.escape(str(v))}</span></div>'
+        for k, v in rows)
+    return (f'<section class="source"><h3>PDF 原图属性</h3>'
+            f'<div class="chips">{body}</div></section>')
+
+
+def connector_html():
+    """Three arrows aligning with the preview columns."""
+    arrows = "".join(f'<span class="arrow arrow-{fmt}"></span>'
+                     for fmt in ("svg", "transparent", "png"))
+    return f'<div class="connector" aria-hidden="true">{arrows}</div>'
 
 
 def main():
@@ -256,9 +266,9 @@ def main():
 
         if results["svg"]["ok"]:
             if bg == "transparent":
-                note = "画布透明：切到深色页面会透出深色底，黑色文字可能看不清"
+                note = "输出画布透明：切到深色页面会透出深色底，黑色文字可能看不清"
             else:
-                note = "自带不透明底色：切到深色页面时图仍保持自身底色"
+                note = "输出已带不透明底色：切到深色页面时图仍保持自身底色"
             if results["transparent"]["ok"]:
                 note += "；透明底一列用于对照，切到 Dark 时差异最明显"
         else:
@@ -279,9 +289,10 @@ def main():
         cards.append(f'''<section class="card">
 <h2>{html.escape(name)} <span class="badge {bg}">{html.escape(bg)}</span></h2>
 <p class="meta">page {html.escape(entry["page"])} · fig {html.escape(entry["fig"])}{html.escape(clip)} · {html.escape(str(entry["pdf"]))}</p>
-<p class="note">{html.escape(note)}</p>
-<div class="previews">{"".join(figures)}</div>
 {props}
+{connector_html()}
+<div class="previews">{"".join(figures)}</div>
+<p class="note">{html.escape(note)}</p>
 <details><summary>extractor log</summary><pre>{html.escape(logs)}</pre></details>
 </section>''')
 
@@ -329,10 +340,26 @@ body[data-theme="dark"] .controls button {{ background: #ffffff14; border-color:
 .badge.transparent {{ background: #fef3c7; color: #78350f; }}
 .badge.failed {{ background: #fee2e2; color: #7f1d1d; }}
 pre {{ overflow: auto; font-size: 12px; }}
-.props {{ margin-top: 12px; }}
-.props table {{ border-collapse: collapse; font-size: 12px; width: 100%; }}
-.props th, .props td {{ text-align: left; padding: 4px 8px; border-bottom: 1px solid #8883; vertical-align: top; }}
-.props th {{ white-space: nowrap; opacity: .75; font-weight: 500; }}
+.source {{ margin: 14px auto 0; max-width: 1100px; padding: 16px 18px;
+          border: 1px solid #2563eb40; border-radius: 12px;
+          background: linear-gradient(180deg, #2563eb12, #2563eb04); }}
+body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24, #2563eb0a); }}
+.source h3 {{ margin: 0 0 12px; font-size: 13px; font-weight: 600; text-align: center; }}
+.chips {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 22px; }}
+@media (max-width: 760px) {{ .chips {{ grid-template-columns: 1fr; }} }}
+.chip {{ border-bottom: 1px dashed #8883; padding-bottom: 4px; min-width: 0; }}
+.chip .k {{ display: block; font-size: 11px; opacity: .6; margin-bottom: 2px; }}
+.chip .v {{ display: block; font-size: 12px; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }}
+.connector {{ display: grid; gap: 12px; margin: 4px 0 8px; }}
+body[data-format="both"] .connector {{ grid-template-columns: repeat(3, 1fr); }}
+@media (max-width: 1000px) {{ body[data-format="both"] .connector {{ grid-template-columns: 1fr; }} }}
+.arrow {{ display: flex; justify-content: center; height: 30px; position: relative; }}
+.arrow::before {{ content: ""; width: 2px; height: 20px; background: #2563eb; }}
+.arrow::after {{ content: ""; position: absolute; top: 18px;
+                 border: 6px solid transparent; border-top-color: #2563eb; }}
+body[data-format="svg"] .arrow-transparent, body[data-format="svg"] .arrow-png,
+body[data-format="transparent"] .arrow-svg, body[data-format="transparent"] .arrow-png,
+body[data-format="png"] .arrow-svg, body[data-format="png"] .arrow-transparent {{ display: none; }}
 </style></head>
 <body data-theme="light" data-format="both">
 <h1>自动背景判定画廊</h1>

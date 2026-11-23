@@ -75,7 +75,10 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf
-自带不透明底色：切到深色页面时图仍保持自身底色；透明底一列用于对照
+┌──────────── PDF 原图属性（居中卡片）────────────┐
+│ 页面 · clip · 内容 · 背景判定 · 亮度 …            │
+└──────────────────────────────────────────────────┘
+             ↓                  ↓                  ↓
 ┌──────────┬──────────┬──────────┐
 │ SVG      │ 透明 SVG  │ PNG      │
 └──────────┴──────────┴──────────┘
@@ -112,7 +115,7 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 | SVG（透明底） | 同上，`background=transparent` |
 | PNG | 文件大小 · 像素尺寸 · 色彩模式 · dpi · `background=` |
 
-卡片底部另有折叠的 **「PDF 原图属性」**，记录源文件信息：
+图片行上方居中展示 **「PDF 原图属性」** 卡片，卡片下方用箭头指向对应的产物，记录源文件信息：
 
 | 分组 | 内容 |
 |---|---|
