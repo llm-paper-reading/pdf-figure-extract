@@ -68,7 +68,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 页面顶部还会展示 **auto 判定规则**；每张卡片在属性卡片下方给出本条的实际判定依据，例如：
 
 ```text
-background 判定：不透明 0.15 < 0.50，暗墨 0.41 ≥ 0.05 → white（默认）
+background 判定：不透明 0.15 < 0.50，暗墨 0.41 ≥ 0.05 → white（透明画布默认）
 ```
 
 这样不用去翻 log 就知道为什么选了白底、深底或保留原底。
