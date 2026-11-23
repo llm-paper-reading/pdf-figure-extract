@@ -5,14 +5,19 @@
 [![skills.sh](https://skills.sh/b/llm-paper-reading/pdf-figure-extract)](https://skills.sh/llm-paper-reading/pdf-figure-extract)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-从论文 PDF 中安全抽取 Figure 为 **SVG（推荐）/ PNG** 的通用 Agent Skill，遵循 [Agent Skills 开放规范](https://agentskills.io)，可用于 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
+把论文 PDF 里的 Figure 抽取成可直接使用的图片：矢量图输出 **SVG**（推荐），位图输出 **PNG**。这是一个遵循 [Agent Skills 开放规范](https://agentskills.io) 的通用 skill，同一份内容可安装到 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
 
-杜绝抽图最常见的四类问题：
+适合把论文中的架构图、流程图、曲线图搬到静态站点、文档或幻灯片，并保证裁切准确、放大清晰、结果可重复生成。
 
-- ✂️ **贴边裁剪** —— 顶部/底部文字被切一半、坐标轴没截全
-- 📰 **混入杂质** —— 论文自带 caption、正文段落、页眉被裁进图里
-- 🔗 **双栏误判** —— 把另一栏的图或正文并进同一张图
-- ❌ **图 404** —— 只写了引用没产出文件
+**主要优势**
+
+- **矢量优先**：架构图、流程图抽成 SVG，任意缩放不失真；
+- **裁切准确**：以 `Figure N:` 图注为锚点，自动排除图注、正文与页眉；
+- **自带质检**：提取后检查四边墨迹，异常以退出码 3 报 WARN，不静默产出坏图；
+- **可复现**：纯本地脚本、无外部服务，可写进 CI，换论文或换版本后重跑；
+- **跨 harness**：同一份 skill 可装到 Claude Code、Codex、Cursor 等客户端。
+
+安装后对 agent 说「从论文抽取 Figure 2」即可触发。
 
 ## 效果对比：从 PDF 抽取 vs 官方仓库图片
 
@@ -169,6 +174,13 @@ python <skill-dir>/scripts/check_border.py path/to/images/
 3. **背景感知**：边界检查以四角颜色估计背景，深色主题图不误报。
 
 详细设计、已知坑与对策见 [skills/pdf-figure-extract/SKILL.md](skills/pdf-figure-extract/SKILL.md)。
+
+## 解决的常见抽图问题
+
+- ✂️ **贴边裁剪**：顶部/底部文字被切一半、坐标轴没截全；
+- 📰 **混入杂质**：论文自带 caption、正文段落、页眉被裁进图里；
+- 🔗 **双栏误判**：把另一栏的图或正文并进同一张图；
+- ❌ **图 404**：只写了引用、没产出文件。
 
 ## 已验证场景
 
