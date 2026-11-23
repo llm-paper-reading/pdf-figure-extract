@@ -137,7 +137,7 @@ def png_meta(path):
         return {"mode": im.mode, "size": im.size, "bytes": path.stat().st_size}
 
 
-def props_html(meta, svg, png):
+def props_html(meta):
     bg = meta["bg"]
     images = meta["images"]
     if images:
@@ -167,17 +167,9 @@ def props_html(meta, svg, png):
         ("背景亮度 / 墨色", f"{num(bg.get('bg_luma'))} / {num(bg.get('ink'))}"),
         ("暗墨 / 亮墨占比", f"{bg.get('dark', 0):.2f} / {bg.get('light', 0):.2f}"),
     ]
-    if svg:
-        sw, sh = svg["size"] or (0, 0)
-        rows.append(("SVG", (f"{svg['bytes'] / 1024:.1f} KB · "
-                             f"{sw}×{sh} pt · "
-                             f"内嵌位图 {svg['images']} · 填充色 {svg['colors']}")))
-    if png:
-        rows.append(("PNG", (f"{png['bytes'] / 1024:.1f} KB · "
-                             f"{png['size'][0]}×{png['size'][1]} px · {png['mode']}")))
     body = "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>"
                    for k, v in rows)
-    return f'<details class="props"><summary>PDF / 输出属性</summary><table>{body}</table></details>'
+    return f'<details class="props"><summary>PDF 原图属性</summary><table>{body}</table></details>'
 
 
 def main():
@@ -228,6 +220,12 @@ def main():
         if failed:
             failures += 1
 
+        svg_infos = {}
+        for fmt in ("svg", "transparent"):
+            if results[fmt]["ok"]:
+                svg_infos[fmt] = svg_meta(d / _filename(fmt))
+        png_info = png_meta(d / "extracted.png") if results["png"]["ok"] else None
+
         figures = []
         for fmt, label in (("svg", "SVG（当前背景）"), ("transparent", "SVG（透明底）"),
                            ("png", f"PNG（{args.dpi} dpi）")):
@@ -236,8 +234,25 @@ def main():
                         f'alt="{html.escape(name)} {fmt}">')
             else:
                 body = '<p class="note">抽取失败</p>'
+            cap = []
+            if fmt in svg_infos:
+                info = svg_infos[fmt]
+                sw, sh = info["size"] or (0, 0)
+                cap = [
+                    f"{info['bytes'] / 1024:.1f} KB · {sw}×{sh} pt",
+                    f"内嵌位图 {info['images']} · 填充色 {info['colors']}",
+                    f"background={results[fmt]['bg']}",
+                ]
+            elif fmt == "png" and png_info:
+                cap = [
+                    f"{png_info['bytes'] / 1024:.1f} KB · "
+                    f"{png_info['size'][0]}×{png_info['size'][1]} px · {png_info['mode']}",
+                    f"{args.dpi} dpi",
+                    f"background={results[fmt]['bg']}",
+                ]
+            cap_html = "".join(f'<span class="cap">{html.escape(x)}</span>' for x in cap)
             figures.append(f'<figure class="preview fmt-{fmt}">'
-                           f'<figcaption>{label}</figcaption>{body}</figure>')
+                           f'<figcaption><b>{label}</b>{cap_html}</figcaption>{body}</figure>')
 
         if results["svg"]["ok"]:
             if bg == "transparent":
@@ -258,9 +273,7 @@ def main():
         if clip_rect is not None:
             try:
                 src = inspect_source(entry, clip_rect)
-                svg_info = svg_meta(d / "extracted.svg") if results["svg"]["ok"] else None
-                png_info = png_meta(d / "extracted.png") if results["png"]["ok"] else None
-                props = props_html(src, svg_info, png_info)
+                props = props_html(src)
             except Exception as e:  # noqa: BLE001 - metadata must not break the page
                 props = f'<p class="note">属性读取失败：{html.escape(str(e))}</p>'
         cards.append(f'''<section class="card">
@@ -290,6 +303,8 @@ h2 {{ font-size: 15px; margin: 0 0 6px; font-family: ui-monospace, monospace; }}
 .preview {{ margin: 0; padding: 12px; border-radius: 8px; background: #fff; }}
 body[data-theme="dark"] .preview {{ background: #0f172a; }}
 figcaption {{ font-size: 12px; margin-bottom: 6px; opacity: .8; }}
+figcaption .cap {{ display: block; font-size: 11px; margin-top: 2px;
+                   font-family: ui-monospace, monospace; opacity: .8; }}
 .previews {{ display: grid; gap: 12px; }}
 body[data-format="both"] .previews {{ grid-template-columns: repeat(3, 1fr); }}
 @media (max-width: 1000px) {{ body[data-format="both"] .previews {{ grid-template-columns: 1fr; }} }}

@@ -104,7 +104,15 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 
 ## 属性面板
 
-每张卡片下方有「PDF / 输出属性」，记录原图与产物的客观信息：
+**每张产物图下方**以 caption 样式列出该输出自身的属性：
+
+| 产物 | 行内属性 |
+|---|---|
+| SVG（当前背景） | 文件大小 · viewBox 尺寸 · 内嵌位图数 · 填充色数 · `background=` |
+| SVG（透明底） | 同上，`background=transparent` |
+| PNG | 文件大小 · 像素尺寸 · 色彩模式 · dpi · `background=` |
+
+卡片底部另有折叠的 **「PDF 原图属性」**，记录源文件信息：
 
 | 分组 | 内容 |
 |---|---|
@@ -112,8 +120,6 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 | 裁剪 | clip 坐标（pt）、宽高（pt / in） |
 | 内容 | 文本行数、矢量绘图数、内嵌位图对象数量与各自像素尺寸、字体数（SVG 中的 `<image>` 可能重复引用同一对象，所以数量可能更多） |
 | 背景 | 自带白色 / 深色 / 彩色底或透明，不透明比例、背景亮度、墨色亮度、暗墨与亮墨占比 |
-| SVG | 文件大小、viewBox 尺寸、内嵌位图数、填充色数 |
-| PNG | 文件大小、像素尺寸、色彩模式 |
 
 这些值直接来自 PDF 与输出文件，不依赖 `background` 判定；刷新/重跑后可以拿来对比同一张图在不同抽取参数下的变化。
 
