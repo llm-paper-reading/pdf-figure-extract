@@ -26,8 +26,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+import fitz
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "skills" / "pdf-figure-extract" / "scripts"
+
+sys.path.insert(0, str(SCRIPTS))
+import bgutil  # noqa: E402  (lives in the skill's scripts directory)
 
 
 def parse_manifest(path):
@@ -62,6 +68,116 @@ def slug(entry):
 def _filename(fmt):
     return {"svg": "extracted.svg", "transparent": "transparent.svg",
             "png": "extracted.png"}[fmt]
+
+
+def parse_clip(log):
+    m = re.search(r"clip=\(([^)]+)\)", log)
+    if not m:
+        return None
+    values = [float(v) for v in m.group(1).split(",")]
+    return fitz.Rect(*values) if len(values) == 4 else None
+
+
+def inspect_source(entry, clip):
+    """Properties of the original PDF figure: content mix and painted background."""
+    doc = fitz.open(str(entry["pdf"]))
+    page = doc.load_page(int(entry["page"]) - 1)
+    blocks = page.get_text("dict", clip=clip).get("blocks", [])
+    lines = sum(len(b.get("lines", [])) for b in blocks if b.get("type", 0) == 0)
+    drawings = sum(1 for d in page.get_drawings()
+                   if fitz.Rect(d["rect"]).intersects(clip))
+    images = []
+    for info in page.get_images(full=True):
+        try:
+            r = page.get_image_bbox(info)
+        except Exception:  # noqa: BLE001, S112 - damaged/odd image entries
+            continue
+        if r and fitz.Rect(r).intersects(clip):
+            images.append((info[2], info[3]))
+    fonts = sorted({f[3] for f in page.get_fonts(full=True)})
+    bg = bgutil.analyze(page, clip)
+    return {
+        "pages": doc.page_count,
+        "page_size": (round(page.rect.width, 1), round(page.rect.height, 1)),
+        "clip": clip,
+        "lines": lines,
+        "drawings": drawings,
+        "images": images,
+        "fonts": fonts,
+        "bg": bg,
+        "bg_kind": bg_kind(bg),
+    }
+
+
+def bg_kind(bg):
+    if bg["opaque"] < 0.5 and bg.get("bg_luma") is None:
+        return "透明"
+    luma = bg.get("bg_luma")
+    if luma is not None and luma < 0.35:
+        return "自带深色底"
+    if luma is not None and luma > 0.9:
+        return "自带白色底"
+    return "彩色 / 混合底"
+
+
+def svg_meta(path):
+    text = path.read_text(encoding="utf-8")
+    m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', text)
+    size = (round(float(m.group(1)), 1), round(float(m.group(2)), 1)) if m else None
+    return {
+        "bytes": path.stat().st_size,
+        "size": size,
+        "images": text.count("<image"),
+        "colors": len(set(re.findall(r'fill="([^"]+)"', text))),
+    }
+
+
+def png_meta(path):
+    with Image.open(path) as im:
+        return {"mode": im.mode, "size": im.size, "bytes": path.stat().st_size}
+
+
+def props_html(meta, svg, png):
+    bg = meta["bg"]
+    images = meta["images"]
+    if images:
+        counts = {}
+        for w, h in images:
+            counts[(w, h)] = counts.get((w, h), 0) + 1
+        image_text = "、".join(f"{w}×{h}" + (f" ×{n}" if n > 1 else "")
+                               for (w, h), n in sorted(counts.items()))
+    else:
+        image_text = "无"
+    clip = meta["clip"]
+
+    def num(value):
+        return "n/a" if value is None else f"{value:.2f}"
+
+    rows = [
+        ("PDF 页数 / 页面尺寸", f"{meta['pages']} 页 · {meta['page_size'][0]}×{meta['page_size'][1]} pt"),
+        ("clip（pt）", f"{clip.x0:.1f}, {clip.y0:.1f}, {clip.x1:.1f}, {clip.y1:.1f}"),
+        ("clip 尺寸", (f"{clip.width:.1f}×{clip.height:.1f} pt · "
+                       f"{clip.width / 72:.2f}×{clip.height / 72:.2f} in")),
+        ("内容", f"文本行 {meta['lines']} · 矢量绘图 {meta['drawings']} · 内嵌位图对象 {len(images)}"),
+        ("内嵌位图像素", image_text),
+        ("字体", f"{len(meta['fonts'])} 个" + (
+            f"（{', '.join(meta['fonts'][:3])}…）" if len(meta["fonts"]) > 3 else "")),
+        ("背景判定", (f"{meta['bg_kind']} · 不透明 {bg['opaque']:.2f} · "
+                      f"透明 {1 - bg['opaque']:.2f}")),
+        ("背景亮度 / 墨色", f"{num(bg.get('bg_luma'))} / {num(bg.get('ink'))}"),
+        ("暗墨 / 亮墨占比", f"{bg.get('dark', 0):.2f} / {bg.get('light', 0):.2f}"),
+    ]
+    if svg:
+        sw, sh = svg["size"] or (0, 0)
+        rows.append(("SVG", (f"{svg['bytes'] / 1024:.1f} KB · "
+                             f"{sw}×{sh} pt · "
+                             f"内嵌位图 {svg['images']} · 填充色 {svg['colors']}")))
+    if png:
+        rows.append(("PNG", (f"{png['bytes'] / 1024:.1f} KB · "
+                             f"{png['size'][0]}×{png['size'][1]} px · {png['mode']}")))
+    body = "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>"
+                   for k, v in rows)
+    return f'<details class="props"><summary>PDF / 输出属性</summary><table>{body}</table></details>'
 
 
 def main():
@@ -136,11 +252,23 @@ def main():
         clip = f" clip={entry['clip']}" if entry["clip"] else ""
         logs = "\n\n".join(f"[{fmt.upper()}]\n{results[fmt]['log']}"
                            for fmt in ("svg", "transparent", "png"))
+
+        props = ""
+        clip_rect = parse_clip(results["svg"]["log"]) or parse_clip(results["png"]["log"])
+        if clip_rect is not None:
+            try:
+                src = inspect_source(entry, clip_rect)
+                svg_info = svg_meta(d / "extracted.svg") if results["svg"]["ok"] else None
+                png_info = png_meta(d / "extracted.png") if results["png"]["ok"] else None
+                props = props_html(src, svg_info, png_info)
+            except Exception as e:  # noqa: BLE001 - metadata must not break the page
+                props = f'<p class="note">属性读取失败：{html.escape(str(e))}</p>'
         cards.append(f'''<section class="card">
 <h2>{html.escape(name)} <span class="badge {bg}">{html.escape(bg)}</span></h2>
 <p class="meta">page {html.escape(entry["page"])} · fig {html.escape(entry["fig"])}{html.escape(clip)} · {html.escape(str(entry["pdf"]))}</p>
 <p class="note">{html.escape(note)}</p>
 <div class="previews">{"".join(figures)}</div>
+{props}
 <details><summary>extractor log</summary><pre>{html.escape(logs)}</pre></details>
 </section>''')
 
@@ -186,6 +314,10 @@ body[data-theme="dark"] .controls button {{ background: #ffffff14; border-color:
 .badge.transparent {{ background: #fef3c7; color: #78350f; }}
 .badge.failed {{ background: #fee2e2; color: #7f1d1d; }}
 pre {{ overflow: auto; font-size: 12px; }}
+.props {{ margin-top: 12px; }}
+.props table {{ border-collapse: collapse; font-size: 12px; width: 100%; }}
+.props th, .props td {{ text-align: left; padding: 4px 8px; border-bottom: 1px solid #8883; vertical-align: top; }}
+.props th {{ white-space: nowrap; opacity: .75; font-weight: 500; }}
 </style></head>
 <body data-theme="light" data-format="both">
 <h1>自动背景判定画廊</h1>
