@@ -1,6 +1,6 @@
 # 对比素材说明
 
-本目录中的 SVG 由本技能从论文 PDF 直接抽取，仅用于 README 的效果对比。
+本目录中的 SVG 由本技能从论文 PDF 直接抽取，用于 README 与本文档中的效果对比。README 主对比使用 FlashAttention，One Fits All 作为边界案例保留在这里。
 
 ## 素材一：FlashAttention（README 默认示例）
 
