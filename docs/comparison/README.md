@@ -16,6 +16,22 @@ python <skill-dir>/scripts/extract_svg.py fa.pdf 2 1 flash-attention-figure1.svg
 
 - 论文许可：[arXiv non-exclusive distribution license 1.0](http://arxiv.org/licenses/nonexclusive-distrib/1.0/)；图形内容同时随 BSD-3-Clause 的官方仓库发布。
 
+### FlashAttention-2 benchmark 图
+
+- 论文：Tri Dao. *FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning*. 2023. [PDF](https://tridao.me/publications/flash2/flash2.pdf)
+- 对应官方图片：`assets/flash2_a100_fwd_bwd_benchmark.png`（Figure 4，A100）、`assets/flash2_h100_fwd_bwd_benchmark.png`（Figure 7，H100）
+- 生成命令：
+
+```bash
+curl -sL -o flash2.pdf https://tridao.me/publications/flash2/flash2.pdf
+
+# A100（Figure 4）：图上方紧邻正文，直接锚定会带入正文末行，需显式 clip
+python <skill-dir>/scripts/extract_svg.py flash2.pdf 10 4 flash-attention2-a100-benchmark.svg --clip "57.8,366,554.2,700"
+
+# H100（Figure 7）：caption 锚定即可
+python <skill-dir>/scripts/extract_svg.py flash2.pdf 13 7 flash-attention2-h100-benchmark.svg
+```
+
 ## 素材二：One Fits All
 
 - 论文：Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, Rong Jin. *One Fits All: Power General Time Series Analysis by Pretrained LM*. NeurIPS 2023 Spotlight. [arXiv:2302.11939](https://arxiv.org/abs/2302.11939)
