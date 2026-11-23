@@ -1,6 +1,6 @@
 # 对比素材说明
 
-本目录中的 SVG 由本技能从论文 PDF 直接抽取，用于 README 与本文档中的效果对比。README 主对比使用 FlashAttention，One Fits All 作为边界案例保留在这里。
+本目录中的 SVG 由本技能从论文 PDF 直接抽取，用于 README 与本文档中的效果对比。下面的命令中 `$SKILL_DIR` 指 skill 安装目录（例如 `~/skills/pdf-figure-extract`）。README 主对比使用 FlashAttention，One Fits All 作为边界案例保留在这里。
 
 ## 展示副本
 
@@ -15,7 +15,7 @@
 
 ```bash
 curl -sL -o fa.pdf https://arxiv.org/pdf/2205.14135
-python <skill-dir>/scripts/extract_svg.py fa.pdf 2 1 flash-attention-figure1.svg
+python "$SKILL_DIR/scripts/extract_svg.py" fa.pdf 2 1 flash-attention-figure1.svg
 ```
 
 - 论文许可：[arXiv non-exclusive distribution license 1.0](http://arxiv.org/licenses/nonexclusive-distrib/1.0/)；图形内容同时随 BSD-3-Clause 的官方仓库发布。
@@ -30,7 +30,7 @@ python <skill-dir>/scripts/extract_svg.py fa.pdf 2 1 flash-attention-figure1.svg
 curl -sL -o flash2.pdf https://tridao.me/publications/flash2/flash2.pdf
 
 # A100（Figure 4）：图上方紧邻正文，直接锚定会带入正文末行，需显式 clip
-python <skill-dir>/scripts/extract_svg.py flash2.pdf 10 4 flash-attention2-a100-benchmark.svg --clip "57.8,366,554.2,700"
+python "$SKILL_DIR/scripts/extract_svg.py" flash2.pdf 10 4 flash-attention2-a100-benchmark.svg --clip "57.8,366,554.2,700"
 ```
 
 ## 素材二：One Fits All
@@ -42,8 +42,8 @@ python <skill-dir>/scripts/extract_svg.py flash2.pdf 10 4 flash-attention2-a100-
 
 ```bash
 curl -sL -o ofa.pdf https://arxiv.org/pdf/2302.11939
-python <skill-dir>/scripts/extract_svg.py ofa.pdf 2 1 one-fits-all-figure1.svg   # Figure 1
-python <skill-dir>/scripts/extract_svg.py ofa.pdf 4 2 one-fits-all-figure2.svg   # Figure 2
+python "$SKILL_DIR/scripts/extract_svg.py" ofa.pdf 2 1 one-fits-all-figure1.svg   # Figure 1
+python "$SKILL_DIR/scripts/extract_svg.py" ofa.pdf 4 2 one-fits-all-figure2.svg   # Figure 2
 ```
 
 ## 版权
