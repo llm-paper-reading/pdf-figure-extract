@@ -21,11 +21,11 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG"><br>
+<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG" width="100%"><br>
 <sub>官方 JPG：1650×645，315 KB</sub>
 </td>
 <td width="50%" align="center">
-<img src="docs/comparison/flash-attention-figure1.svg" alt="本技能抽取的 SVG"><br>
+<img src="docs/comparison/compare/flash-attention-figure1.svg" alt="本技能抽取的 SVG" width="100%"><br>
 <sub>本技能 SVG：160 KB，放大不失真</sub>
 </td>
 </tr>
@@ -36,11 +36,11 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark"><br>
+<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" width="100%"><br>
 <sub>官方 PNG：1878×1314，369 KB</sub>
 </td>
 <td width="50%" align="center">
-<img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG"><br>
+<img src="docs/comparison/compare/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG" width="100%"><br>
 <sub>本技能 SVG：313 KB</sub>
 </td>
 </tr>
