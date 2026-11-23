@@ -10,9 +10,9 @@ The fourth field is an optional `--clip x0,y0,x1,y1`. Relative PDF paths are
 resolved against the manifest's directory.
 
 Each entry is extracted to SVG and embedded directly in the page. The top
-buttons switch the page theme (light / dark / checkerboard): transparent SVG
-areas show the page background, while SVGs with a baked background keep their
-own color. That is the difference a reader sees on a light or dark site.
+buttons switch the page theme (light / dark): transparent SVG areas show the
+page background, while SVGs with a baked background keep their own color.
+That is the difference a reader sees on a light or dark site.
 
     python tools/background_gallery.py manifest.txt --out /tmp/auto-gallery
     python -m http.server -d /tmp/auto-gallery 8000
@@ -126,16 +126,6 @@ h2 {{ font-size: 15px; margin: 0 0 6px; font-family: ui-monospace, monospace; }}
 .note {{ font-size: 12px; margin: 0 0 12px; opacity: .85; }}
 .preview {{ margin: 0; padding: 12px; border-radius: 8px; background: #fff; }}
 body[data-theme="dark"] .preview {{ background: #0f172a; }}
-body[data-theme="checker"] .preview {{
-  background-color: #fff;
-  background-image:
-    linear-gradient(45deg, #94a3b8 25%, transparent 25%),
-    linear-gradient(-45deg, #94a3b8 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #94a3b8 75%),
-    linear-gradient(-45deg, transparent 75%, #94a3b8 75%);
-  background-size: 24px 24px;
-  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
-}}
 img {{ width: 100%; height: auto; display: block; }}
 .controls {{ display: flex; gap: 8px; margin: 12px 0; position: sticky; top: 0;
              padding: 10px 0; background: inherit; z-index: 2; }}
@@ -153,11 +143,10 @@ pre {{ overflow: auto; font-size: 12px; }}
 </style></head>
 <body data-theme="light">
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题：light / dark / 棋盘格。图片按 SVG 原样嵌入，透明区域会显示页面背景；带底色的 SVG 不随主题变化。</p>
+<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题：Light / Dark。透明 SVG 会随页面背景变化；带底色的 SVG 在两种主题下保持一致。</p>
 <div class="controls">
 <button data-set="light" class="active">Light</button>
 <button data-set="dark">Dark</button>
-<button data-set="checker">棋盘格</button>
 </div>
 {"".join(cards)}
 <script>
