@@ -1,6 +1,6 @@
 # 背景画廊（开发工具）
 
-批量抽取真实论文图，把每张图同时渲染到**白底**和**深底**上，生成一个 HTML 页面，用来人工验收 `--background auto` 的判定是否合适。
+批量抽取真实论文图，把每张图同时渲染到**白底**、**深底**和**棋盘格**上，生成一个 HTML 页面，用来人工验收 `--background auto` 的判定是否合适。
 
 这不是 skill 的一部分，不会随 `npx skills add` 或插件安装；它只是仓库里的开发/验收工具。
 
@@ -52,6 +52,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 │   ├── extracted.svg     # 实际抽取结果
 │   ├── on-white.png      # 合成到白底
 │   ├── on-dark.png       # 合成到深底
+│   ├── on-checker.png    # 合成到棋盘格，用来看画布是否透明
 │   └── log.txt           # background=... ink_luma=... opaque=...
 └── ...
 ```
@@ -60,15 +61,24 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 ## 怎么读页面
 
-每个条目一张卡片，左右两栏分别是白底与深底的渲染结果：
+每个条目一张卡片，三栏分别是白底、深底与棋盘格：
 
 ```text
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf
-┌──────────────┬──────────────┐
-│ 渲染在白底     │ 渲染在深底     │
-└──────────────┴──────────────┘
+SVG 自带不透明底色：白底/深底预览相同是预期结果
+┌──────────┬──────────┬──────────┐
+│ 白底      │ 深底      │ 棋盘格    │
+└──────────┴──────────┴──────────┘
 ▸ extractor log
+```
+
+**白底与深底看起来一样，是因为 SVG 已经写入了不透明底色**（auto 判定为 white/dark，或论文自带底色时）——图自身盖住了画布。此时棋盘格也会被底色盖住。只有 `transparent` 模式下，棋盘格才会透出来，白底与深底预览也会明显不同。
+
+想专门看透明状态：
+
+```bash
+python tools/background_gallery.py /tmp/manifest.txt --background transparent --out /tmp/auto-gallery-transparent
 ```
 
 判定徽章：

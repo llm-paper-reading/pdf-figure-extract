@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 
 from PIL import Image
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "skills" / "pdf-figure-extract" / "scripts"
@@ -61,6 +62,16 @@ def slug(entry):
     return name
 
 
+def checkerboard(size, square=16):
+    """RGBA checkerboard used to reveal transparency in an SVG."""
+    w, h = size
+    yy, xx = np.indices((h, w))
+    mask = ((xx // square) + (yy // square)) % 2 == 1
+    arr = np.full((h, w, 4), 255, dtype=np.uint8)
+    arr[mask] = (148, 163, 184, 255)  # 深浅交错，透明区域一眼可见
+    return Image.fromarray(arr, "RGBA")
+
+
 def render_on(svg, out, background, width):
     tmp = out.with_suffix(".tmp.png")
     rc = subprocess.run(["rsvg-convert", "-w", str(width), str(svg), "-o", str(tmp)],
@@ -69,6 +80,18 @@ def render_on(svg, out, background, width):
         raise RuntimeError(rc.stderr.strip() or "rsvg-convert failed")
     im = Image.open(tmp).convert("RGBA")
     canvas = Image.new("RGBA", im.size, background + (255,))
+    Image.alpha_composite(canvas, im).convert("RGB").save(out, optimize=True)
+    tmp.unlink()
+
+
+def render_checker(svg, out, width):
+    tmp = out.with_suffix(".tmp.png")
+    rc = subprocess.run(["rsvg-convert", "-w", str(width), str(svg), "-o", str(tmp)],
+                        capture_output=True, text=True, check=False)
+    if rc.returncode != 0:
+        raise RuntimeError(rc.stderr.strip() or "rsvg-convert failed")
+    im = Image.open(tmp).convert("RGBA")
+    canvas = checkerboard(im.size)
     Image.alpha_composite(canvas, im).convert("RGB").save(out, optimize=True)
     tmp.unlink()
 
@@ -109,16 +132,24 @@ def main():
         m = re.search(r"background=(\w+)", log)
         bg = m.group(1) if m else "failed"
         pair = ""
+        note = ""
         if r.returncode == 0 and svg.exists():
             try:
                 render_on(svg, d / "on-white.png", WHITE, args.width)
                 render_on(svg, d / "on-dark.png", DARK, args.width)
+                render_checker(svg, d / "on-checker.png", args.width)
+                if bg == "transparent":
+                    note = "SVG 画布透明：棋盘格透出，白/深底预览也不同"
+                elif bg in ("white", "dark", "keep"):
+                    note = "SVG 自带不透明底色：白底/深底预览相同是预期结果"
                 pair = (
                     '<div class="pair">'
-                    f'<figure><figcaption>渲染在白底</figcaption>'
+                    f'<figure><figcaption>白底</figcaption>'
                     f'<img src="{name}/on-white.png" alt="white background"></figure>'
-                    f'<figure class="dark"><figcaption>渲染在深底</figcaption>'
+                    f'<figure class="dark"><figcaption>深底</figcaption>'
                     f'<img src="{name}/on-dark.png" alt="dark background"></figure>'
+                    f'<figure><figcaption>棋盘格（透明检查）</figcaption>'
+                    f'<img src="{name}/on-checker.png" alt="checkerboard"></figure>'
                     "</div>"
                 )
             except Exception as e:  # noqa: BLE001 - report and keep going
@@ -130,6 +161,7 @@ def main():
         cards.append(f'''<section class="card">
 <h2>{html.escape(name)} <span class="badge {bg}">{html.escape(bg)}</span></h2>
 <p class="meta">page {html.escape(entry["page"])} · fig {html.escape(entry["fig"])}{html.escape(clip)} · {html.escape(str(entry["pdf"]))}</p>
+<p class="note">{html.escape(note)}</p>
 {pair}
 <details><summary>extractor log</summary><pre>{html.escape(log)}</pre></details>
 </section>''')
@@ -146,8 +178,9 @@ h1 {{ font-size: 20px; }}
 .card {{ border: 1px solid #8884; border-radius: 12px; padding: 16px; margin: 20px 0; }}
 h2 {{ font-size: 15px; margin: 0 0 6px; font-family: ui-monospace, monospace; }}
 .meta {{ font-size: 12px; opacity: .7; margin: 0 0 12px; word-break: break-all; }}
-.pair {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
-@media (max-width: 720px) {{ .pair {{ grid-template-columns: 1fr; }} }}
+.pair {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }}
+@media (max-width: 900px) {{ .pair {{ grid-template-columns: 1fr; }} }}
+.note {{ font-size: 12px; margin: 0 0 10px; opacity: .8; }}
 figure {{ margin: 0; padding: 8px; border-radius: 8px; background: #fff; color: #111; }}
 figure.dark {{ background: #0f172a; color: #eee; }}
 figcaption {{ font-size: 12px; margin-bottom: 6px; }}
@@ -161,7 +194,7 @@ img {{ width: 100%; height: auto; display: block; }}
 pre {{ overflow: auto; font-size: 12px; }}
 </style></head><body>
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。左侧白底、右侧深底；任一侧文字看不清即需人工处理。</p>
+<p>共 {len(entries)} 项，失败 {failures} 项。每项三栏：白底 / 深底 / 棋盘格。白底与深底相同，说明 SVG 已自带不透明底色；棋盘格透出，说明画布透明。</p>
 {"".join(cards)}
 </body></html>'''
     (outdir / "gallery.html").write_text(page, encoding="utf-8")

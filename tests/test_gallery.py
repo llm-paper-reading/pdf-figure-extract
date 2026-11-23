@@ -29,6 +29,7 @@ class TestGallery:
         assert (card / "extracted.svg").is_file()
         assert (card / "on-white.png").is_file()
         assert (card / "on-dark.png").is_file()
+        assert (card / "on-checker.png").is_file()
         assert (card / "log.txt").is_file()
 
     def test_failed_entry_is_reported(self, simple_pdf, tmp_path):
