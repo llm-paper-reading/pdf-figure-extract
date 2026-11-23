@@ -229,6 +229,7 @@ pdf-figure-extract/
 ├── skills/pdf-figure-extract/   # 技能本体（SKILL.md + scripts + Codex 元数据）
 ├── docs/comparison/             # 效果对比素材与说明
 ├── docs/examples/               # 表格 / 算法伪代码等额外示例
+├── tools/                       # 开发工具：auto 背景画廊（不随 skill 安装）
 ├── .github/workflows/ci.yml     # CI：测试、plugin 校验、跨工具发现
 ├── tests/                       # 单元、回归、CLI、README 冒烟、打包校验
 ├── install.sh                   # 源码安装（软链 / 复制到各 agent 目录）
@@ -245,6 +246,10 @@ python -m pytest tests/ -q
 
 # README 命令逐条冒烟（联网下载 arXiv PDF）
 python -m pytest tests/test_readme_commands.py --net -q
+
+# 人工验收 auto 背景：批量抽取并生成白底 / 深底对照画廊
+python tools/background_gallery.py tools/background_gallery.example.txt --out /tmp/auto-gallery
+python -m http.server -d /tmp/auto-gallery 8000   # 打开 http://localhost:8000/gallery.html
 ```
 
 测试分层：
@@ -253,6 +258,7 @@ python -m pytest tests/test_readme_commands.py --net -q
 - `tests/test_regression.py`：历史 bug 回归（图内图例 TXT 块被切、两脚本 figure_clip 行为一致性）；
 - `tests/test_cli.py`：CLI 退出码、`--clip` 跳过 caption 查找、PNG 白边注入、check_border 目录扫描；
 - `tests/test_background.py`：`--background auto/white/dark/transparent`、深底保留、透明 SVG 的边界检测；
+- `tests/test_gallery.py`：背景画廊生成与失败条目的展示；
 - `tests/test_readme_commands.py`：与 README 示例对应的命令（默认跳过，`--net` 开启）；
 - `tests/test_packaging.py`：frontmatter 规范、三处版本号一致、marketplace 条目、`install.sh` 行为。
 
