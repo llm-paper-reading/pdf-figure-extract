@@ -247,7 +247,7 @@ python -m pytest tests/ -q
 # README 命令逐条冒烟（联网下载 arXiv PDF）
 python -m pytest tests/test_readme_commands.py --net -q
 
-# 人工验收 auto 背景：批量抽取并生成可切换 light/dark 页面主题的画廊
+# 人工验收 auto 背景：批量抽取并生成 SVG/PNG 并排、可切换 light/dark 主题的画廊
 python tools/background_gallery.py tools/background_gallery.example.txt --out /tmp/auto-gallery
 python -m http.server -d /tmp/auto-gallery 8000   # 打开 http://localhost:8000/gallery.html
 ```

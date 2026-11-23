@@ -1,14 +1,14 @@
 # 背景画廊（开发工具）
 
-批量抽取真实论文图，把每张 SVG 直接嵌入一个 HTML 页面，用页面顶部的 **Light / Dark** 切换来预览它在浅色与深色网站上的实际效果。用来人工验收 `--background auto` 的判定是否合适。
+批量抽取真实论文图，同时产出 **SVG 与 PNG** 并嵌入一个 HTML 页面，用页面顶部的 **Light / Dark** 切换来预览它在浅色与深色网站上的实际效果。用来人工验收 `--background auto` 的判定是否合适。
 
 这不是 skill 的一部分，不会随 `npx skills add` 或插件安装；它只是仓库里的开发/验收工具。
 
 ## 依赖
 
-- Python 3.10+ 与 PyMuPDF（见仓库 `requirements-dev.txt`）
+- Python 3.10+ 与 PyMuPDF、Pillow、numpy（见仓库 `requirements-dev.txt`）
 - `poppler`（`pdftocairo`），抽取 SVG 时需要
-- 画廊本身直接展示 SVG，不需要 `rsvg-convert`；只有 `check_border.py` 检查 SVG 时才需要 librsvg
+- 画廊本身直接展示 SVG / PNG，不需要 `rsvg-convert`；只有 `check_border.py` 检查 SVG 时才需要 librsvg
 
 ## 快速开始
 
@@ -50,8 +50,10 @@ python -m http.server -d /tmp/auto-gallery 8000
 /tmp/auto-gallery/
 ├── gallery.html
 ├── fa-p2-f1/
-│   ├── extracted.svg     # 实际抽取结果，页面直接引用它
-│   └── log.txt           # background=... ink_luma=... opaque=...
+│   ├── extracted.svg     # SVG 产物，页面直接引用
+│   ├── extracted.png     # PNG 产物（默认 200 dpi）
+│   ├── log-svg.txt       # background=... ink_luma=... opaque=...
+│   └── log-png.txt
 └── ...
 ```
 
@@ -59,22 +61,28 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 ## 怎么读页面
 
-页面顶部有 **Light / Dark** 两个按钮，切换的是**整页主题**（背景与文字颜色）。图片始终引用原始 SVG，所以透明区域会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
+页面顶部有两组按钮：
+
+- **Light / Dark**：切换整页主题（背景与文字颜色）；
+- **SVG / PNG / 并排**：选择展示哪种产物。
+
+图片都是抽取结果本身，不是重新排版的截图。透明 SVG 会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
 
 ```text
-[Light] [Dark]                  ← 切换页面主题
+[Light] [Dark] | [SVG] [PNG] [并排]
 
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf
-SVG 自带不透明底色：切到深色页面时图仍保持自身底色
+自带不透明底色：切到深色页面时图仍保持自身底色
 ┌──────────────────────────┐
-│ SVG 原样嵌入                │
+│ SVG / PNG / 两者并排        │
 └──────────────────────────┘
 ▸ extractor log
 ```
 
 - **透明 SVG**：切到 Dark 时透明区域透出深色，黑色文字可能看不清——这正是需要 `--background auto` 的原因；切回 Light 又恢复正常，两者对比即可确认画布是否透明；
-- **带底色的 SVG**（auto 判定为 white / dark / keep）：无论页面主题是什么，图都保持自身底色。
+- **带底色的图像**（auto 判定为 white / dark / keep）：无论页面主题是什么，图都保持自身底色；
+- **SVG vs PNG**：SVG 是矢量、可缩放；PNG 是位图，按 `--dpi` 渲染。并排模式最容易看出清晰度与体积差异。
 
 想对照「不加底」的原始状态：
 
@@ -100,6 +108,7 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 |---|---|---|
 | `--out DIR` | `/tmp/auto-gallery` | 输出目录 |
 | `--background` | `auto` | `auto` / `white` / `dark` / `transparent` |
+| `--dpi` | `200` | PNG 预览的渲染 dpi（300 更清晰但更慢） |
 | `--strict` | 关 | 有失败条目时以退出码 1 结束 |
 
 ## 和其他验证方式的分工

@@ -23,10 +23,13 @@ class TestGallery:
         assert "background=white" in page
         assert 'class="controls"' in page
         assert 'data-theme="light"' in page
-        assert "/extracted.svg" in page
+        assert 'data-fmt="png"' in page
+        assert "/extracted.svg" in page and "/extracted.png" in page
         card = next(p for p in out.iterdir() if p.is_dir())
         assert (card / "extracted.svg").is_file()
-        assert (card / "log.txt").is_file()
+        assert (card / "extracted.png").is_file()
+        assert (card / "log-svg.txt").is_file()
+        assert (card / "log-png.txt").is_file()
 
     def test_failed_entry_is_reported(self, simple_pdf, tmp_path):
         manifest = tmp_path / "manifest.txt"
