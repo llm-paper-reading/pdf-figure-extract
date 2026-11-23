@@ -5,7 +5,7 @@
 [![skills.sh](https://skills.sh/b/llm-paper-reading/pdf-figure-extract)](https://skills.sh/llm-paper-reading/pdf-figure-extract)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-从论文 PDF 中安全抽取 Figure 为 **PNG / SVG** 的通用 Agent Skill，遵循 [Agent Skills 开放规范](https://agentskills.io)，可用于 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
+从论文 PDF 中安全抽取 Figure 为 **SVG（推荐）/ PNG** 的通用 Agent Skill，遵循 [Agent Skills 开放规范](https://agentskills.io)，可用于 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
 
 杜绝抽图最常见的四类问题：
 
@@ -37,7 +37,6 @@
 |---|---|---|---|---|
 | 官方仓库 `flashattn_banner.jpg` | JPEG（有损） | 1650×645 | 315 KB | 位图，放大可见压缩噪点 |
 | 本技能 `extract_svg.py` | SVG 矢量 | 无限缩放 | **160 KB** | 文字与线条是路径，可直接用于网页 |
-| 本技能 `extract_fig.py` | PNG（无损） | **1808×753** | **154 KB** | 300 dpi，体积约为 JPG 的一半 |
 
 **官方 benchmark 图（FlashAttention-2，A100）**
 
@@ -51,22 +50,23 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark"><br>
-<sub>本技能抽取：SVG 313 KB；同图 PNG 2118×1440，204 KB</sub>
+<sub>本技能抽取：SVG 矢量，313 KB</sub>
 </td>
 </tr>
 </table>
 
-| 图 | 官方 PNG | 本技能 SVG | 本技能 PNG（300 dpi） |
-|---|---|---|---|
-| A100 forward + backward（Figure 4） | 1878×1314，369 KB | **313 KB** | 2118×1440，**204 KB** |
+| 图 | 官方 PNG | 本技能 SVG |
+|---|---|---|
+| A100 forward + backward（Figure 4） | 1878×1314，369 KB | **313 KB** |
 
 > A100 这张图上方紧挨正文段落，直接按 caption 锚定会把正文最后一行一起框进来。按 [SKILL.md](skills/pdf-figure-extract/SKILL.md) 里「混入正文」的对策，用 `--clip "57.8,366,554.2,700"` 显式指定图区即可干净取出。
 
 结论：
 
-- **更清晰**：矢量图优先走 SVG，文字与线条是路径而非像素，放大到任意倍率都不糊；同一张图的 PNG 输出（1808×753）也比官方 JPG（1650×645）分辨率更高；
-- **通常更小**：Figure 1 的 SVG 160 KB、PNG 154 KB，分别约为官方 JPG 的 51% 和 49%，且没有 JPEG 压缩噪点；A100 benchmark 图的 SVG / PNG 也比官方 PNG 小 15%–45%；
+- **更清晰**：优先走 SVG，文字与线条是路径而非像素，放大到任意倍率都不糊；官方位图（如 FlashAttention 的 JPG、A100 的 PNG）放大会出现压缩噪点或像素块；
+- **通常更小**：Figure 1 的 SVG 160 KB，约为官方 JPG 的 51%，且没有 JPEG 压缩噪点；A100 benchmark 的 SVG 313 KB，比官方 PNG（369 KB）小 15%；
 - **不夹带图注**：以 caption 为锚点，天然停在 `Figure N: ...` 之前（官方图片带图注的情形见下方 One Fits All 例子）；
+- **PNG 只是备选**：当图中本身是照片、扫描件等位图内容时，`extract_fig.py` 才更合适；它输出的是 300 dpi 位图，放大后受像素分辨率限制，不能像 SVG 那样任意缩放；
 - **不依赖作者是否提供图片**：绝大多数论文没有官方图片文件，本技能对任意 PDF 都能产出结果；
 - **可复现、可抽查**：一条命令生成并自检四边墨迹，可写进 CI，换版本或换图后重新跑。
 
@@ -100,7 +100,7 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/one-fits-all-figure2.svg" alt="本技能抽取的模型架构图"><br>
-<sub>本技能抽取：SVG（含 11 个内嵌位图）279 KB，<b>不含图注</b>；同图 PNG 模式仅 153 KB</sub>
+<sub>本技能抽取：SVG（含 11 个内嵌位图），279 KB，<b>不含图注</b></sub>
 </td>
 </tr>
 </table>
@@ -111,12 +111,10 @@
 |---|---|---|---|---|---|
 | Figure 1 | 官方仓库 `main_result.png` | PNG 位图 | 1064×934 | 389 KB | ✗ 含图注 |
 | Figure 1 | 本技能 `extract_svg.py` | SVG 矢量 | 无限缩放 | **140 KB** | ✓ 不含 |
-| Figure 1 | 本技能 `extract_fig.py` | PNG 300 dpi | **2049×1159** | 361 KB | ✓ 不含 |
 | Figure 2 | 官方仓库 `model_structure.png` | PNG 位图 | 1474×822 | 221 KB | ✗ 含图注 |
 | Figure 2 | 本技能 `extract_svg.py` | SVG（含 11 个内嵌位图） | 无限缩放 | 279 KB | ✓ 不含 |
-| Figure 2 | 本技能 `extract_fig.py` | PNG 300 dpi | 1484×863 | **153 KB** | ✓ 不含 |
 
-注意：这个例子里 Figure 2 的矢量路径与内嵌图标较复杂，SVG（279 KB）反而大于官方 PNG（221 KB），此时用 PNG 模式（153 KB）更划算。文件大小取决于图的复杂度，**「更小」不是必然**。
+注意：这个例子里 Figure 2 的矢量路径与内嵌图标较复杂，SVG（279 KB）反而大于官方 PNG（221 KB）。文件大小取决于图的复杂度，**「更小」不是必然**。
 
 </details>
 
@@ -213,7 +211,7 @@ curl -sL -o paper.pdf "https://arxiv.org/pdf/2205.14135"
 # 矢量图 → SVG（推荐，任意缩放不失真）
 python <skill-dir>/scripts/extract_svg.py paper.pdf 2 1 fig1.svg
 
-# 位图 → PNG（自动注入 1.2% 白边；FlashAttention 的 Figure 2 在第 6 页）
+# 仅当图中本身是照片 / 扫描位图时用 PNG（自动注入 1.2% 白边；放大受像素限制）
 python <skill-dir>/scripts/extract_fig.py paper.pdf 6 2 fig2.png
 
 # 双栏页 / 特殊图注（Figure 1 |、Fig. 1: 等）→ 显式矩形（pt）
