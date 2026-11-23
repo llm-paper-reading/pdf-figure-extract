@@ -139,16 +139,16 @@ def main():
                 render_on(svg, d / "on-dark.png", DARK, args.width)
                 render_checker(svg, d / "on-checker.png", args.width)
                 if bg == "transparent":
-                    note = "SVG 画布透明：棋盘格透出，白/深底预览也不同"
+                    note = "SVG 画布透明：棋盘格透出，切换白底/深底可见明显差异"
                 elif bg in ("white", "dark", "keep"):
-                    note = "SVG 自带不透明底色：白底/深底预览相同是预期结果"
+                    note = "SVG 自带不透明底色：切换白底/深底看到的是同一块底色"
                 pair = (
-                    '<div class="pair">'
-                    f'<figure><figcaption>白底</figcaption>'
+                    '<div class="previews">'
+                    f'<figure class="preview" data-bg="white"><figcaption>白底</figcaption>'
                     f'<img src="{name}/on-white.png" alt="white background"></figure>'
-                    f'<figure class="dark"><figcaption>深底</figcaption>'
+                    f'<figure class="preview" data-bg="dark"><figcaption>深底</figcaption>'
                     f'<img src="{name}/on-dark.png" alt="dark background"></figure>'
-                    f'<figure><figcaption>棋盘格（透明检查）</figcaption>'
+                    f'<figure class="preview" data-bg="checker"><figcaption>棋盘格（透明检查）</figcaption>'
                     f'<img src="{name}/on-checker.png" alt="checkerboard"></figure>'
                     "</div>"
                 )
@@ -178,9 +178,18 @@ h1 {{ font-size: 20px; }}
 .card {{ border: 1px solid #8884; border-radius: 12px; padding: 16px; margin: 20px 0; }}
 h2 {{ font-size: 15px; margin: 0 0 6px; font-family: ui-monospace, monospace; }}
 .meta {{ font-size: 12px; opacity: .7; margin: 0 0 12px; word-break: break-all; }}
-.pair {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }}
-@media (max-width: 900px) {{ .pair {{ grid-template-columns: 1fr; }} }}
-.note {{ font-size: 12px; margin: 0 0 10px; opacity: .8; }}
+.pair, .previews {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
+.preview {{ display: none; margin: 0; padding: 8px; border-radius: 8px; background: #fff; color: #111; }}
+.preview[data-bg="dark"] {{ background: #0f172a; color: #eee; }}
+.preview[data-bg="checker"] {{ background: #f8fafc; color: #111; }}
+body[data-bg="white"] .preview[data-bg="white"],
+body[data-bg="dark"] .preview[data-bg="dark"],
+body[data-bg="checker"] .preview[data-bg="checker"] {{ display: block; }}
+.controls {{ display: flex; gap: 8px; margin: 12px 0; position: sticky; top: 0;
+             padding: 10px 0; background: Canvas; z-index: 2; }}
+.controls button {{ font: inherit; padding: 6px 14px; border-radius: 8px;
+                    border: 1px solid #8886; background: #8881; color: inherit; cursor: pointer; }}
+.controls button.active {{ background: #2563eb; border-color: #2563eb; color: #fff; }}
 figure {{ margin: 0; padding: 8px; border-radius: 8px; background: #fff; color: #111; }}
 figure.dark {{ background: #0f172a; color: #eee; }}
 figcaption {{ font-size: 12px; margin-bottom: 6px; }}
@@ -192,10 +201,24 @@ img {{ width: 100%; height: auto; display: block; }}
 .badge.transparent {{ background: #fef3c7; color: #78350f; }}
 .badge.failed {{ background: #fee2e2; color: #7f1d1d; }}
 pre {{ overflow: auto; font-size: 12px; }}
-</style></head><body>
+</style></head>
+<body data-bg="white">
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。每项三栏：白底 / 深底 / 棋盘格。白底与深底相同，说明 SVG 已自带不透明底色；棋盘格透出，说明画布透明。</p>
+<p>共 {len(entries)} 项，失败 {failures} 项。用顶部按钮切换白底 / 深底 / 棋盘格。白底与深底看起来相同，说明 SVG 已自带不透明底色；棋盘格透出，说明画布透明。</p>
+<div class="controls">
+<button data-set="white" class="active">白底</button>
+<button data-set="dark">深底</button>
+<button data-set="checker">棋盘格</button>
+</div>
 {"".join(cards)}
+<script>
+const buttons = [...document.querySelectorAll('.controls button')];
+function setBg(bg) {{
+  document.body.dataset.bg = bg;
+  buttons.forEach(b => b.classList.toggle('active', b.dataset.set === bg));
+}}
+buttons.forEach(b => b.addEventListener('click', () => setBg(b.dataset.set)));
+</script>
 </body></html>'''
     (outdir / "gallery.html").write_text(page, encoding="utf-8")
     print(f"{len(entries)} entries, {failures} failed -> {outdir / 'gallery.html'}")

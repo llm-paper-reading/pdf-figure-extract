@@ -25,6 +25,8 @@ class TestGallery:
         assert r.returncode == 0, r.stdout + r.stderr
         page = (out / "gallery.html").read_text(encoding="utf-8")
         assert "background=white" in page
+        assert 'class="controls"' in page
+        assert 'data-bg="dark"' in page
         card = next(p for p in out.iterdir() if p.is_dir())
         assert (card / "extracted.svg").is_file()
         assert (card / "on-white.png").is_file()
