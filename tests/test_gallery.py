@@ -27,6 +27,8 @@ class TestGallery:
         assert "图区尺寸" in page and "内嵌位图" in page
         assert "/extracted.svg" in page and "/extracted.png" in page and "/transparent.svg" in page
         assert "PDF 原图属性" in page
+        assert "auto 背景判定规则" in page
+        assert "background 判定：" in page
         assert "填充色" in page and "background=" in page and "dpi" in page
         card = next(p for p in out.iterdir() if p.is_dir())
         assert (card / "extracted.svg").is_file()

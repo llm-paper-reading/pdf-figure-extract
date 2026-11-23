@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "skills" / "pdf-figure-extract" / "scripts"
 
 sys.path.insert(0, str(SCRIPTS))
-import bgutil  # noqa: E402  (lives in the skill's scripts directory)
+import bgutil
 
 
 def parse_manifest(path):
@@ -94,7 +94,6 @@ def inspect_source(entry, clip):
             continue
         if r and fitz.Rect(r).intersects(clip):
             images.append((info[2], info[3]))
-    fonts = sorted({f[3] for f in page.get_fonts(full=True)})
     bg = bgutil.analyze(page, clip)
     return {
         "clip": clip,
@@ -115,6 +114,30 @@ def bg_kind(bg):
     if luma is not None and luma > 0.9:
         return "自带白色底"
     return "彩色 / 混合底"
+
+
+def explain_background(requested, bg):
+    """Mirror bgutil.resolve() and spell out which branch fired."""
+    if requested != "auto":
+        return f"手动指定 --background={requested}"
+    opaque = bg["opaque"]
+    luma = bg.get("bg_luma")
+    if opaque >= 0.5:
+        if luma is not None and luma < 0.35:
+            return (f"不透明 {opaque:.2f} ≥ 0.50，背景亮度 {luma:.2f} < 0.35 "
+                    f"→ keep（保留论文深色底）")
+        shown = "n/a" if luma is None else f"{luma:.2f}"
+        return (f"不透明 {opaque:.2f} ≥ 0.50，背景亮度 {shown} ≥ 0.35 "
+                f"→ white（补白底）")
+    dark, light = bg.get("dark", 0.0), bg.get("light", 0.0)
+    if dark < 0.05 and light > 0.5:
+        return (f"不透明 {opaque:.2f} < 0.50，暗墨 {dark:.2f} < 0.05、"
+                f"亮墨 {light:.2f} > 0.50 → dark")
+    if dark >= 0.05:
+        return (f"不透明 {opaque:.2f} < 0.50，暗墨 {dark:.2f} ≥ 0.05 "
+                f"→ white（默认）")
+    return (f"不透明 {opaque:.2f} < 0.50，亮墨 {light:.2f} ≤ 0.50 "
+            f"→ white（默认）")
 
 
 def svg_meta(path):
@@ -248,8 +271,8 @@ def main():
                 ]
             elif fmt == "png" and png_info:
                 cap = [
-                    f"{png_info['bytes'] / 1024:.1f} KB · "
-                    f"{png_info['size'][0]}×{png_info['size'][1]} px · {png_info['mode']}",
+                    (f"{png_info['bytes'] / 1024:.1f} KB · "
+                     f"{png_info['size'][0]}×{png_info['size'][1]} px · {png_info['mode']}"),
                     f"{args.dpi} dpi",
                     f"background={results[fmt]['bg']}",
                 ]
@@ -272,17 +295,20 @@ def main():
                            for fmt in ("svg", "transparent", "png"))
 
         props = ""
+        why = ""
         clip_rect = parse_clip(results["svg"]["log"]) or parse_clip(results["png"]["log"])
         if clip_rect is not None:
             try:
                 src = inspect_source(entry, clip_rect)
                 props = props_html(src)
+                why = explain_background(args.background, src["bg"])
             except Exception as e:  # noqa: BLE001 - metadata must not break the page
                 props = f'<p class="note">属性读取失败：{html.escape(str(e))}</p>'
         cards.append(f'''<section class="card">
 <h2>{html.escape(name)} <span class="badge {bg}">{html.escape(bg)}</span></h2>
 <p class="meta">page {html.escape(entry["page"])} · fig {html.escape(entry["fig"])}{html.escape(clip)} · {html.escape(str(entry["pdf"]))}</p>
 {props}
+<p class="decision"><b>background 判定：</b>{html.escape(why)}</p>
 {connector_html()}
 <div class="previews">{"".join(figures)}</div>
 <p class="note">{html.escape(note)}</p>
@@ -319,6 +345,13 @@ img {{ width: 100%; height: auto; display: block; }}
                     border: 1px solid #8886; background: #8881; color: inherit; cursor: pointer; }}
 body[data-theme="dark"] .controls button {{ background: #ffffff14; border-color: #ffffff33; }}
 .controls button.active {{ background: #2563eb; border-color: #2563eb; color: #fff; }}
+.rules {{ margin: 14px 0; padding: 12px 16px; border: 1px solid #8884; border-radius: 10px; font-size: 13px; }}
+.rules ol {{ margin: 6px 0 0 18px; padding: 0; }}
+.rules li {{ margin: 3px 0; }}
+.rules code {{ font-family: ui-monospace, monospace; }}
+.decision {{ margin: 10px auto 0; max-width: 980px; padding: 8px 12px; border-radius: 8px;
+             background: #2563eb14; font-size: 12px; text-align: center; }}
+body[data-theme="dark"] .decision {{ background: #2563eb2a; }}
 .badge {{ font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #8884; }}
 .badge.white {{ background: #e5e7eb; color: #111; }}
 .badge.dark {{ background: #1e293b; color: #eee; }}
@@ -350,6 +383,13 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 <button data-set="light" class="active">Light</button>
 <button data-set="dark">Dark</button>
 </div>
+<section class="rules">
+<strong>auto 背景判定规则</strong>
+<ol>
+<li>不透明 ≥ 0.50：背景亮度 &lt; 0.35 → <code>keep</code>（保留论文深色底）；否则 <code>white</code>。</li>
+<li>不透明 &lt; 0.50：暗墨 &lt; 5% 且亮墨 &gt; 50% → <code>dark</code>；否则 <code>white</code>（默认）。</li>
+</ol>
+</section>
 {"".join(cards)}
 <script>
 const themeButtons = [...document.querySelectorAll('.controls button[data-set]')];
