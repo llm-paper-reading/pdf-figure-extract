@@ -50,9 +50,11 @@ python -m http.server -d /tmp/auto-gallery 8000
 /tmp/auto-gallery/
 ├── gallery.html
 ├── fa-p2-f1/
-│   ├── extracted.svg     # SVG 产物，页面直接引用
+│   ├── extracted.svg     # 按 --background 抽取的 SVG
+│   ├── transparent.svg   # 强制透明底，用于对照
 │   ├── extracted.png     # PNG 产物（默认 200 dpi）
-│   ├── log-svg.txt       # background=... ink_luma=... opaque=...
+│   ├── log-svg.txt
+│   ├── log-transparent.txt
 │   └── log-png.txt
 └── ...
 ```
@@ -64,19 +66,19 @@ python -m http.server -d /tmp/auto-gallery 8000
 页面顶部有两组按钮：
 
 - **Light / Dark**：切换整页主题（背景与文字颜色）；
-- **SVG / PNG / 并排**：选择展示哪种产物。
+- **SVG / 透明 SVG / PNG / 并排**：选择展示哪种产物。`SVG` 是按 `--background` 抽取的结果，`透明 SVG` 强制不加底，用于对照。
 
 图片都是抽取结果本身，不是重新排版的截图。透明 SVG 会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
 
 ```text
-[Light] [Dark] | [SVG] [PNG] [并排]
+[Light] [Dark] | [SVG] [透明 SVG] [PNG] [并排]
 
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf
-自带不透明底色：切到深色页面时图仍保持自身底色
-┌──────────────────────────┐
-│ SVG / PNG / 两者并排        │
-└──────────────────────────┘
+自带不透明底色：切到深色页面时图仍保持自身底色；透明底一列用于对照
+┌──────────┬──────────┬──────────┐
+│ SVG      │ 透明 SVG  │ PNG      │
+└──────────┴──────────┴──────────┘
 ▸ extractor log
 ```
 
