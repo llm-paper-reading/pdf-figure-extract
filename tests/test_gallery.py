@@ -23,11 +23,10 @@ class TestGallery:
         assert "background=white" in page
         assert 'class="controls"' in page
         assert 'data-theme="light"' in page
-        assert 'data-fmt="png"' in page
-        assert 'data-fmt="transparent"' in page
+        assert 'data-fmt' not in page
+        assert "图区尺寸" in page and "内嵌位图" in page
         assert "/extracted.svg" in page and "/extracted.png" in page and "/transparent.svg" in page
         assert "PDF 原图属性" in page
-        assert "内嵌位图" in page and "clip 尺寸" in page
         assert "填充色" in page and "background=" in page and "dpi" in page
         card = next(p for p in out.iterdir() if p.is_dir())
         assert (card / "extracted.svg").is_file()

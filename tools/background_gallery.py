@@ -97,13 +97,10 @@ def inspect_source(entry, clip):
     fonts = sorted({f[3] for f in page.get_fonts(full=True)})
     bg = bgutil.analyze(page, clip)
     return {
-        "pages": doc.page_count,
-        "page_size": (round(page.rect.width, 1), round(page.rect.height, 1)),
         "clip": clip,
         "lines": lines,
         "drawings": drawings,
         "images": images,
-        "fonts": fonts,
         "bg": bg,
         "bg_kind": bg_kind(bg),
     }
@@ -154,14 +151,10 @@ def props_html(meta):
         return "n/a" if value is None else f"{value:.2f}"
 
     rows = [
-        ("PDF 页数 / 页面尺寸", f"{meta['pages']} 页 · {meta['page_size'][0]}×{meta['page_size'][1]} pt"),
-        ("clip（pt）", f"{clip.x0:.1f}, {clip.y0:.1f}, {clip.x1:.1f}, {clip.y1:.1f}"),
-        ("clip 尺寸", (f"{clip.width:.1f}×{clip.height:.1f} pt · "
-                       f"{clip.width / 72:.2f}×{clip.height / 72:.2f} in")),
-        ("内容", f"文本行 {meta['lines']} · 矢量绘图 {meta['drawings']} · 内嵌位图对象 {len(images)}"),
+        ("图区尺寸", (f"{clip.width:.1f}×{clip.height:.1f} pt · "
+                      f"{clip.width / 72:.2f}×{clip.height / 72:.2f} in")),
+        ("图内内容", f"文本行 {meta['lines']} · 矢量绘图 {meta['drawings']} · 内嵌位图对象 {len(images)}"),
         ("内嵌位图像素", image_text),
-        ("字体", f"{len(meta['fonts'])} 个" + (
-            f"（{', '.join(meta['fonts'][:3])}…）" if len(meta["fonts"]) > 3 else "")),
         ("背景判定", (f"{meta['bg_kind']} · 不透明 {bg['opaque']:.2f} · "
                       f"透明 {1 - bg['opaque']:.2f}")),
         ("背景亮度 / 墨色", f"{num(bg.get('bg_luma'))} / {num(bg.get('ink'))}"),
@@ -316,15 +309,8 @@ body[data-theme="dark"] .preview {{ background: #0f172a; }}
 figcaption {{ font-size: 12px; margin-top: 8px; opacity: .8; }}
 figcaption .cap {{ display: block; font-size: 11px; margin-top: 2px;
                    font-family: ui-monospace, monospace; opacity: .8; }}
-.previews {{ display: grid; gap: 12px; }}
-body[data-format="both"] .previews {{ grid-template-columns: repeat(3, 1fr); }}
-@media (max-width: 1000px) {{ body[data-format="both"] .previews {{ grid-template-columns: 1fr; }} }}
-body[data-format="svg"] .fmt-transparent,
-body[data-format="svg"] .fmt-png,
-body[data-format="transparent"] .fmt-svg,
-body[data-format="transparent"] .fmt-png,
-body[data-format="png"] .fmt-svg,
-body[data-format="png"] .fmt-transparent {{ display: none; }}
+.previews {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }}
+@media (max-width: 1000px) {{ .previews {{ grid-template-columns: 1fr; }} }}
 .sep {{ width: 1px; align-self: stretch; background: #8884; margin: 0 6px; }}
 img {{ width: 100%; height: auto; display: block; }}
 .controls {{ display: flex; gap: 8px; margin: 12px 0; position: sticky; top: 0;
@@ -350,43 +336,28 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 .chip {{ border-bottom: 1px dashed #8883; padding-bottom: 4px; min-width: 0; }}
 .chip .k {{ display: block; font-size: 11px; opacity: .6; margin-bottom: 2px; }}
 .chip .v {{ display: block; font-size: 12px; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }}
-.connector {{ display: grid; gap: 12px; margin: 4px 0 8px; }}
-body[data-format="both"] .connector {{ grid-template-columns: repeat(3, 1fr); }}
-@media (max-width: 1000px) {{ body[data-format="both"] .connector {{ grid-template-columns: 1fr; }} }}
+.connector {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 4px 0 8px; }}
+@media (max-width: 1000px) {{ .connector {{ grid-template-columns: 1fr; }} }}
 .arrow {{ display: flex; justify-content: center; height: 30px; position: relative; }}
 .arrow::before {{ content: ""; width: 2px; height: 20px; background: #2563eb; }}
 .arrow::after {{ content: ""; position: absolute; top: 18px;
                  border: 6px solid transparent; border-top-color: #2563eb; }}
-body[data-format="svg"] .arrow-transparent, body[data-format="svg"] .arrow-png,
-body[data-format="transparent"] .arrow-svg, body[data-format="transparent"] .arrow-png,
-body[data-format="png"] .arrow-svg, body[data-format="png"] .arrow-transparent {{ display: none; }}
 </style></head>
-<body data-theme="light" data-format="both">
+<body data-theme="light">
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题（Light / Dark）与产物（SVG / 透明 SVG / PNG / 并排）。透明 SVG 会随页面背景变化；带底色的图像在两种主题下保持一致。</p>
+<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题（Light / Dark）；SVG、透明 SVG、PNG 固定并排展示。透明 SVG 会随页面背景变化；带底色的图像在两种主题下保持一致。</p>
 <div class="controls">
 <button data-set="light" class="active">Light</button>
 <button data-set="dark">Dark</button>
-<span class="sep"></span>
-<button data-fmt="svg">SVG</button>
-<button data-fmt="transparent">透明 SVG</button>
-<button data-fmt="png">PNG</button>
-<button data-fmt="both" class="active">并排</button>
 </div>
 {"".join(cards)}
 <script>
 const themeButtons = [...document.querySelectorAll('.controls button[data-set]')];
-const fmtButtons = [...document.querySelectorAll('.controls button[data-fmt]')];
 function setTheme(theme) {{
   document.body.dataset.theme = theme;
   themeButtons.forEach(b => b.classList.toggle('active', b.dataset.set === theme));
 }}
-function setFormat(fmt) {{
-  document.body.dataset.format = fmt;
-  fmtButtons.forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
-}}
 themeButtons.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.set)));
-fmtButtons.forEach(b => b.addEventListener('click', () => setFormat(b.dataset.fmt)));
 </script>
 </body></html>'''
     (outdir / "gallery.html").write_text(page, encoding="utf-8")
