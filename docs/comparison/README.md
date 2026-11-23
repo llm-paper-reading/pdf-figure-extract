@@ -2,10 +2,6 @@
 
 本目录中的 SVG 由本技能从论文 PDF 直接抽取，用于 README 与本文档中的效果对比。下面的命令中 `$SKILL_DIR` 指 skill 安装目录（例如 `~/skills/pdf-figure-extract`）。README 主对比使用 FlashAttention，One Fits All 作为边界案例保留在这里。
 
-## 展示副本
-
-`compare/` 下的 SVG 是 `flash-attention-figure1.svg` 与 `flash-attention2-a100-benchmark.svg` 的**展示副本**：只在图的两侧或上下补白，使宽高比与官方图片一致，从而在 README 中并排时显示为相同尺寸；图形内容与工具输出完全一致。
-
 ## 素材一：FlashAttention（README 默认示例）
 
 - 论文：Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, Christopher Ré. *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*. NeurIPS 2022. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)

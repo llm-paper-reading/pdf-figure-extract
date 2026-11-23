@@ -23,11 +23,11 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG" width="100%"><br>
+<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG" height="200"><br>
 <sub>官方 JPG：1650×645，315 KB</sub>
 </td>
 <td width="50%" align="center">
-<img src="docs/comparison/compare/flash-attention-figure1.svg" alt="本技能抽取的 SVG" width="100%"><br>
+<img src="docs/comparison/flash-attention-figure1.svg" alt="本技能抽取的 SVG" height="200"><br>
 <sub>本技能 SVG：160 KB，放大不失真</sub>
 </td>
 </tr>
@@ -38,11 +38,11 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" width="100%"><br>
+<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" height="200"><br>
 <sub>官方 PNG：1878×1314，369 KB</sub>
 </td>
 <td width="50%" align="center">
-<img src="docs/comparison/compare/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG" width="100%"><br>
+<img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG" height="200"><br>
 <sub>本技能 SVG：313 KB</sub>
 </td>
 </tr>
@@ -226,7 +226,7 @@ pdf-figure-extract/
 ├── plugin.json                  # 通用 Agent Plugins 清单
 ├── .claude-plugin/              # Claude Code 插件与 marketplace 清单、图标
 ├── skills/pdf-figure-extract/   # 技能本体（SKILL.md + scripts + Codex 元数据）
-├── docs/comparison/             # 效果对比素材与说明（compare/ 为等尺寸展示副本）
+├── docs/comparison/             # 效果对比素材与说明
 ├── docs/examples/               # 表格 / 算法伪代码等额外示例
 ├── .github/workflows/ci.yml     # CI：测试、plugin 校验、跨工具发现
 ├── tests/                       # 单元、回归、CLI、README 冒烟、打包校验
