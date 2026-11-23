@@ -252,6 +252,8 @@ python tools/background_gallery.py tools/background_gallery.example.txt --out /t
 python -m http.server -d /tmp/auto-gallery 8000   # 打开 http://localhost:8000/gallery.html
 ```
 
+画廊的清单格式、输出结构与验收方法见 [tools/README.md](tools/README.md)。
+
 测试分层：
 
 - `tests/test_unit.py`：caption 锚定（含章节编号、无交叉误配）、边界墨迹检测（含深色背景不误报）、错误路径；
