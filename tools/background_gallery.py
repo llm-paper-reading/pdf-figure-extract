@@ -251,8 +251,8 @@ def main():
                     f"background={results[fmt]['bg']}",
                 ]
             cap_html = "".join(f'<span class="cap">{html.escape(x)}</span>' for x in cap)
-            figures.append(f'<figure class="preview fmt-{fmt}">'
-                           f'<figcaption><b>{label}</b>{cap_html}</figcaption>{body}</figure>')
+            figures.append(f'<figure class="preview fmt-{fmt}">{body}'
+                           f'<figcaption><b>{label}</b>{cap_html}</figcaption></figure>')
 
         if results["svg"]["ok"]:
             if bg == "transparent":
@@ -302,7 +302,7 @@ h2 {{ font-size: 15px; margin: 0 0 6px; font-family: ui-monospace, monospace; }}
 .note {{ font-size: 12px; margin: 0 0 12px; opacity: .85; }}
 .preview {{ margin: 0; padding: 12px; border-radius: 8px; background: #fff; }}
 body[data-theme="dark"] .preview {{ background: #0f172a; }}
-figcaption {{ font-size: 12px; margin-bottom: 6px; opacity: .8; }}
+figcaption {{ font-size: 12px; margin-top: 8px; opacity: .8; }}
 figcaption .cap {{ display: block; font-size: 11px; margin-top: 2px;
                    font-family: ui-monospace, monospace; opacity: .8; }}
 .previews {{ display: grid; gap: 12px; }}
