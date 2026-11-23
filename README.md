@@ -39,9 +39,9 @@
 | 本技能 `extract_svg.py` | SVG 矢量 | 无限缩放 | **160 KB** | 文字与线条是路径，可直接用于网页 |
 | 本技能 `extract_fig.py` | PNG（无损） | **1808×753** | **154 KB** | 300 dpi，体积约为 JPG 的一半 |
 
-**官方 benchmark 图（FlashAttention-2，A100 / H100）**
+**官方 benchmark 图（FlashAttention-2，A100）**
 
-官方 README 还有两张 forward + backward benchmark 图，分别出自 [FlashAttention-2](https://tridao.me/publications/flash2/flash2.pdf) 的 Figure 4 与 Figure 7：
+官方 README 还有一张 forward + backward benchmark 图，出自 [FlashAttention-2](https://tridao.me/publications/flash2/flash2.pdf) 的 Figure 4（A100）：
 
 <table>
 <tr>
@@ -54,29 +54,18 @@
 <sub>本技能抽取：SVG 313 KB；同图 PNG 2118×1440，204 KB</sub>
 </td>
 </tr>
-<tr>
-<td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_h100_fwd_bwd_benchmark.png" alt="官方 H100 benchmark"><br>
-<sub>官方 <code>flash2_h100_fwd_bwd_benchmark.png</code>：PNG 1882×1262，308 KB</sub>
-</td>
-<td width="50%" align="center">
-<img src="docs/comparison/flash-attention2-h100-benchmark.svg" alt="本技能抽取的 H100 benchmark"><br>
-<sub>本技能抽取：SVG 206 KB；同图 PNG 2116×1538，175 KB</sub>
-</td>
-</tr>
 </table>
 
 | 图 | 官方 PNG | 本技能 SVG | 本技能 PNG（300 dpi） |
 |---|---|---|---|
 | A100 forward + backward（Figure 4） | 1878×1314，369 KB | **313 KB** | 2118×1440，**204 KB** |
-| H100 forward + backward（Figure 7） | 1882×1262，308 KB | **206 KB** | 2116×1538，**175 KB** |
 
 > A100 这张图上方紧挨正文段落，直接按 caption 锚定会把正文最后一行一起框进来。按 [SKILL.md](skills/pdf-figure-extract/SKILL.md) 里「混入正文」的对策，用 `--clip "57.8,366,554.2,700"` 显式指定图区即可干净取出。
 
 结论：
 
 - **更清晰**：矢量图优先走 SVG，文字与线条是路径而非像素，放大到任意倍率都不糊；同一张图的 PNG 输出（1808×753）也比官方 JPG（1650×645）分辨率更高；
-- **通常更小**：Figure 1 的 SVG 160 KB、PNG 154 KB，分别约为官方 JPG 的 51% 和 49%，且没有 JPEG 压缩噪点；两张 benchmark 图的 SVG / PNG 也比官方 PNG 小 15%–45%；
+- **通常更小**：Figure 1 的 SVG 160 KB、PNG 154 KB，分别约为官方 JPG 的 51% 和 49%，且没有 JPEG 压缩噪点；A100 benchmark 图的 SVG / PNG 也比官方 PNG 小 15%–45%；
 - **不夹带图注**：以 caption 为锚点，天然停在 `Figure N: ...` 之前（官方图片带图注的情形见下方 One Fits All 例子）；
 - **不依赖作者是否提供图片**：绝大多数论文没有官方图片文件，本技能对任意 PDF 都能产出结果；
 - **可复现、可抽查**：一条命令生成并自检四边墨迹，可写进 CI，换版本或换图后重新跑。
