@@ -5,6 +5,7 @@ size. Falls back to scripted raster crop if pdftocairo is missing.
 
 Usage:
   python extract_svg.py <pdf> <page_1based> <fig_num> <out.svg> [--margin-pt 20]
+                        [--background auto|white|dark|transparent]
 """
 import argparse
 import os
@@ -12,6 +13,8 @@ import re
 import sys
 
 import fitz
+
+import bgutil
 
 
 def find_caption(page, num):
@@ -81,6 +84,9 @@ def main():
     ap.add_argument('--margin-pt', type=float, default=20)
     ap.add_argument('--clip', type=str, default=None,
                     help='explicit clip rect x0,y0,x1,y1 in pt (for two-column pages)')
+    ap.add_argument('--background', choices=bgutil.MODES, default='auto',
+                    help='auto (default): white behind dark ink, dark behind light ink; '
+                         'white/dark force a color; transparent leaves the SVG unpainted')
     args = ap.parse_args()
     doc = fitz.open(args.pdf)
     page = doc.load_page(args.page - 1)
@@ -100,14 +106,22 @@ def main():
     outdoc.save(tmp_pdf, garbage=4, deflate=True)
     outdoc.close()
     os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)
+    info = bgutil.analyze(page, clip)
+    bg = bgutil.resolve(args.background, info)
     rc = os.system(f'pdftocairo -svg "{tmp_pdf}" "{args.out}"')
     os.unlink(tmp_pdf)
     if rc != 0:
         sys.exit(f'ERROR: pdftocairo failed ({rc})')
+    if bg in bgutil.HEX:
+        bgutil.svg_add_background(args.out, bg)
     sz = os.path.getsize(args.out)
     if sz < 200:
         sys.exit(f'ERROR: suspicious SVG size {sz} bytes')
-    print(f'{args.out}: clip={tuple(round(v, 1) for v in clip)} bytes={sz}')
+    warn = bgutil.contrast_warning(bg, info, args.background)
+    print(f'{args.out}: clip={tuple(round(v, 1) for v in clip)} bytes={sz} '
+          f'{bgutil.describe(bg, info)}')
+    if warn:
+        print(f'WARN {warn}', file=sys.stderr)
 
 
 if __name__ == '__main__':

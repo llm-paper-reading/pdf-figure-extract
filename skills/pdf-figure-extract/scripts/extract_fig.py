@@ -7,6 +7,7 @@ Anchor-based safe extractor:
 
 Usage:
   python extract_fig.py <pdf> <page_1based> <fig_num> <out.png> [--dpi 300] [--margin-pt 20]
+                        [--background auto|white|dark|transparent]
 """
 import argparse
 import os
@@ -16,6 +17,8 @@ import sys
 import fitz
 import numpy as np
 from PIL import Image, ImageOps
+
+import bgutil
 
 
 def find_caption(page, num):
@@ -80,8 +83,10 @@ def figure_clip(page, cap, margin_pt=20):
 
 
 def borders(im):
-    a = np.asarray(im.convert('RGB'))
-    ink = (a < 245).any(axis=-1)
+    """Background-aware edge ink: estimate the corner color, count deviations."""
+    a = np.asarray(im.convert('RGB')).astype(int)
+    corner = a[2, 2]
+    ink = (np.abs(a - corner).sum(axis=-1) > 24)
     h, w = ink.shape
     band = max(4, int(min(h, w) * 0.01))
     return [ink[:band, :].mean(), ink[-band:, :].mean(),
@@ -96,6 +101,9 @@ def main():
     ap.add_argument('--margin-pt', type=float, default=20)
     ap.add_argument('--clip', type=str, default=None,
                     help='explicit clip rect x0,y0,x1,y1 in pt (for two-column pages)')
+    ap.add_argument('--background', choices=bgutil.MODES, default='auto',
+                    help='auto (default): white behind dark ink, dark behind light ink; '
+                         'white/dark force a color; transparent keeps an alpha channel')
     args = ap.parse_args()
 
     doc = fitz.open(args.pdf)
@@ -112,15 +120,35 @@ def main():
         clip = figure_clip(page, cap, margin_pt=args.margin_pt)
 
     zoom = args.dpi / 72.0
-    pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=clip, alpha=False)
-    im = Image.frombytes('RGB', (pix.width, pix.height), pix.samples)
-    border = max(10, int(im.width * 0.012))  # 1.2% of width white border
-    im = ImageOps.expand(im, border=border, fill=(255, 255, 255))
+    info = bgutil.analyze(page, clip)
+    bg = bgutil.resolve(args.background, info)
+    pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=clip, alpha=True)
+    im = Image.frombytes('RGBA', (pix.width, pix.height), pix.samples)
+    border = max(10, int(im.width * 0.012))  # 1.2% border, colored to match the background
+    transparent = bg == 'transparent'
+    if transparent:
+        im = ImageOps.expand(im, border=border, fill=(0, 0, 0, 0))
+    else:
+        if bg == 'keep':
+            px = im.getpixel((0, 0))
+            fill = px[:3] if px[3] > 0 else bgutil.WHITE
+        else:
+            fill = bgutil.COLORS[bg]
+        flat = Image.alpha_composite(Image.new('RGBA', im.size, fill + (255,)), im).convert('RGB')
+        im = ImageOps.expand(flat, border=border, fill=fill)
     os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)
     im.save(args.out, optimize=True)
+    if transparent:
+        print(f'{args.out}: size={im.size} clip={tuple(round(v, 1) for v in clip)} '
+              f'{bgutil.describe(bg, info)} borders=n/a (transparent)')
+        return
     scores = borders(im)
     tag = 'OK' if max(scores) < 0.003 else 'WARN'
-    print(f'{args.out}: size={im.size} clip={tuple(round(v, 1) for v in clip)} borders={["%.5f" % x for x in scores]} {tag}')
+    print(f'{args.out}: size={im.size} clip={tuple(round(v, 1) for v in clip)} '
+          f'borders={["%.5f" % x for x in scores]} {tag} {bgutil.describe(bg, info)}')
+    warn = bgutil.contrast_warning(bg, info, args.background)
+    if warn:
+        print(f'WARN {warn}', file=sys.stderr)
     if tag == 'WARN':
         sys.exit(3)
 

@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.10+ with PyMuPDF, Pillow and numpy; poppler (pdftocairo) for SVG; librsvg (rsvg-convert) for SVG border checks.
 metadata:
   author: xu-song
-  version: "1.1.0"
+  version: "1.2.0"
   repository: https://github.com/llm-paper-reading/pdf-figure-extract
 ---
 
@@ -47,14 +47,16 @@ metadata:
 
 ```bash
 # PNG：caption 锚定 + 自动白边 + 边界自检；仅建议用于本身是照片 / 扫描位图的图；fig 支持 "1" 或章节编号 "3.1"
-extract_fig.py <pdf> <page> <fig> <out.png> [--dpi 300] [--margin-pt 20] [--clip x0,y0,x1,y1]
+extract_fig.py <pdf> <page> <fig> <out.png> [--dpi 300] [--margin-pt 20] [--clip x0,y0,x1,y1] [--background auto]
 
 # SVG：矢量提取（经 pdftocairo）
-extract_svg.py <pdf> <page> <fig> <out.svg> [--margin-pt 20] [--clip x0,y0,x1,y1]
+extract_svg.py <pdf> <page> <fig> <out.svg> [--margin-pt 20] [--clip x0,y0,x1,y1] [--background auto]
 
 # 边界检查：PNG/JPG/SVG/目录批量，背景感知（深色图不误报）
 check_border.py <path...>
 ```
+
+`--background` 默认 `auto`：PDF 自带底色时保留；否则深色墨配白底，几乎全是浅色墨时才配深底（`#0f172a`），避免透明 SVG 放在深色页面上看不清。可强制 `white` / `dark`，或 `transparent` 保持透明；强制模式与墨色对比不足时会打 WARN。
 
 `--clip` 单位为 PDF 点（pt），指定时跳过 caption 锚定，用于双栏排版、特殊图注，以及表格 / 算法伪代码等没有 Figure caption 的内容；坐标先用 `get_text('dict')` 与 `get_drawings()` 量出。
 
@@ -63,7 +65,7 @@ check_border.py <path...>
 表格和算法框没有 `Figure N:` 这类统一图注，自动锚定不会命中，用 `--clip` 显式指定区域：
 
 1. 定位标题行：找到 `Table N:` / `Algorithm N` 的 bbox（表格 caption 可能在表格上方或下方，按实际版面取方向）；
-2. 量边界：打印 `get_text('dict')` 的文本行与 `get_drawings()` 的框线，取内容的上、下、左、右边界；
+2. 量边界：打印 `get_text('dict')` 的文本行与 `get_drawings()` 的框线，取内容的上、下、左、右边界；四周留 8–10pt 余量，避免框线贴边触发边界 WARN；
 3. 抽取：`extract_svg.py <pdf> <page> <fig> <out.svg> --clip "x0,y0,x1,y1"`；
 4. 核查：`get_text(clip=...)` 确认没有带入相邻正文、另一栏或标题行，再用 `check_border.py` 复检边界。
 
@@ -71,7 +73,7 @@ check_border.py <path...>
 
 ```bash
 curl -sL -o ppo.pdf https://arxiv.org/pdf/1707.06347
-python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "69,460,526,588"
+python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
 ```
 
 输出是 78 KB 的矢量 SVG，缩进、数学符号与上下框线完整。
@@ -98,5 +100,6 @@ python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "69,460,526,588"
 - [ ] clip 内无 caption / 页眉 / 正文
 - [ ] 非 Figure 内容：clip 内无相邻正文 / 另一栏 / 标题行
 - [ ] SVG 输出已用 `check_border.py` 复检
+- [ ] 背景可读：`--background auto` 的判定与预期一致（必要时强制 `white` / `dark`）
 - [ ] 页面上图片正常渲染、无裂图
 - [ ] 图注由站点自身样式控制（不携带 PDF caption）

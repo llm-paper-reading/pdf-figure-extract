@@ -34,7 +34,14 @@ def check(p):
                 print(f'{p}: SKIP rsvg-convert failed')
                 return True
             path = tmp
-        im = Image.open(path).convert('RGB')
+        im = Image.open(path)
+        if im.mode in ('RGBA', 'LA', 'P'):
+            # 透明像素的 RGB 往往是 0；直接 convert('RGB') 会把整张图当成纯黑，
+            # 边界墨迹恒为 0（假通过）。先合成到白底再检测。
+            im = im.convert('RGBA')
+            bg = Image.new('RGBA', im.size, (255, 255, 255, 255))
+            im = Image.alpha_composite(bg, im)
+        im = im.convert('RGB')
     except Exception as e:
         print(f'{p}: SKIP {e}')
         return True

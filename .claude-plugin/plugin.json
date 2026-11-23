@@ -1,6 +1,6 @@
 {
   "name": "pdf-figure-extract",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "从论文 PDF 中安全抽取 Figure 为 PNG/SVG：不贴边裁剪、不含论文自带 caption、可自动校验。",
   "author": {
     "name": "xu-song",

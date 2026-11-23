@@ -10,7 +10,7 @@
 
 ```bash
 curl -sL -o ppo.pdf https://arxiv.org/pdf/1707.06347
-python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "69,460,526,588"
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
 ```
 
 - 说明：`--clip` 单位是 PDF 点，坐标基于该版本 PDF 第 5 页的版面；论文重排版后需要重新测量。
