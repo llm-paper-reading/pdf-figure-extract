@@ -1,13 +1,14 @@
 # 背景画廊（开发工具）
 
-批量抽取真实论文图，把每张图同时渲染到**白底**、**深底**和**棋盘格**上，生成一个 HTML 页面，用来人工验收 `--background auto` 的判定是否合适。
+批量抽取真实论文图，把每张 SVG 直接嵌入一个 HTML 页面，用页面顶部的 **light / dark / 棋盘格** 切换来预览它在浅色与深色网站上的实际效果。用来人工验收 `--background auto` 的判定是否合适。
 
 这不是 skill 的一部分，不会随 `npx skills add` 或插件安装；它只是仓库里的开发/验收工具。
 
 ## 依赖
 
-- Python 3.10+ 与 Pillow、PyMuPDF（见仓库 `requirements-dev.txt`）
-- `rsvg-convert`：macOS `brew install librsvg`
+- Python 3.10+ 与 PyMuPDF（见仓库 `requirements-dev.txt`）
+- `poppler`（`pdftocairo`），抽取 SVG 时需要
+- 画廊本身直接展示 SVG，不需要 `rsvg-convert`；只有 `check_border.py` 检查 SVG 时才需要 librsvg
 
 ## 快速开始
 
@@ -49,10 +50,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 /tmp/auto-gallery/
 ├── gallery.html
 ├── fa-p2-f1/
-│   ├── extracted.svg     # 实际抽取结果
-│   ├── on-white.png      # 合成到白底
-│   ├── on-dark.png       # 合成到深底
-│   ├── on-checker.png    # 合成到棋盘格，用来看画布是否透明
+│   ├── extracted.svg     # 实际抽取结果，页面直接引用它
 │   └── log.txt           # background=... ink_luma=... opaque=...
 └── ...
 ```
@@ -61,23 +59,25 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 ## 怎么读页面
 
-每个条目一张卡片，页面顶部有「白底 / 深底 / 棋盘格」切换按钮，所有卡片一起切换：
+页面顶部有 **Light / Dark / 棋盘格** 三个按钮，切换的是**整页主题**（背景与文字颜色）。图片始终引用原始 SVG，所以透明区域会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
 
 ```text
-[白底] [深底] [棋盘格]          ← 顶部切换
+[Light] [Dark] [棋盘格]        ← 切换页面主题
 
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf
-SVG 自带不透明底色：切换白底/深底看到的是同一块底色
+SVG 自带不透明底色：切到深色页面时图仍保持自身底色
 ┌──────────────────────────┐
-│ 当前背景下的渲染结果        │
+│ SVG 原样嵌入                │
 └──────────────────────────┘
 ▸ extractor log
 ```
 
-**白底与深底看起来一样，是因为 SVG 已经写入了不透明底色**（auto 判定为 white/dark，或论文自带底色时）——图自身盖住了画布。此时棋盘格也会被底色盖住。只有 `transparent` 模式下，棋盘格才会透出来，白底与深底预览也会明显不同。
+- **透明 SVG**：切到 Dark 时透明区域透出深色，黑色文字可能看不清——这正是需要 `--background auto` 的原因；
+- **带底色的 SVG**（auto 判定为 white / dark / keep）：无论页面主题是什么，图都保持自身底色；
+- **棋盘格**：用 CSS 画在图片容器后面，能透出棋盘格说明该区域是透明像素。
 
-想专门看透明状态：
+想对照「不加底」的原始状态：
 
 ```bash
 python tools/background_gallery.py /tmp/manifest.txt --background transparent --out /tmp/auto-gallery-transparent
@@ -87,13 +87,13 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 
 | 徽章 | 含义 | 怎么看 |
 |---|---|---|
-| `white` | 自动补白底 | 深底预览里是一块白底图，黑字正常 |
-| `dark` | 自动补深底 `#0f172a` | 白底预览里是深色块，浅色字正常 |
-| `keep` | 论文自带底色，未覆盖 | 左右两版一致 |
-| `transparent` | 使用 `--background transparent` | 两版底色不同，用于对比不加底的效果 |
-| `failed` | 抽取或渲染失败 | 展开 log 查看错误 |
+| `white` | auto 补了白底 | 切到 Light / Dark，图都保持白底 |
+| `dark` | auto 补了深底 `#0f172a` | 图自身是深色块，浅色字正常 |
+| `keep` | 论文自带底色，未覆盖 | 图保持原有底色 |
+| `transparent` | 未加底 | 切到 Dark 时若文字看不清，说明需要加底 |
+| `failed` | 抽取失败 | 展开 log 查看错误 |
 
-验收标准只有一条：**白底那侧不应有浅色字，深底那侧不应有深色字**。发现两边都难读的，记录 PDF/页码/图号，再用 `--background white` 或 `dark` 强制验证。
+验收标准：分别在 Light 与 Dark 下看一遍，**两种页面主题里文字都要可读**。透明画布重点看 Dark；发现不适配的，记录 PDF/页码/图号，再用 `--background white` 或 `dark` 强制验证。
 
 ## 参数
 
@@ -101,7 +101,6 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 |---|---|---|
 | `--out DIR` | `/tmp/auto-gallery` | 输出目录 |
 | `--background` | `auto` | `auto` / `white` / `dark` / `transparent` |
-| `--width` | `1400` | 预览 PNG 宽度 |
 | `--strict` | 关 | 有失败条目时以退出码 1 结束 |
 
 ## 和其他验证方式的分工
