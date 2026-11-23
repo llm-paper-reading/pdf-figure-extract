@@ -58,7 +58,22 @@
 - **不夹带图注**：按 caption 锚定，天然停在 `Figure N: ...` 之前；
 - **可复现**：一条命令生成（PNG 模式会自检四边墨迹），可写进 CI。
 
-A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。官方图含图注、复杂矢量 SVG 反而更大等边界案例，见 [docs/comparison](docs/comparison/README.md)。
+A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
+
+**没有官方图片时：Algorithm 1（PPO）**
+
+很多论文没有官方图库，表格和算法伪代码也不属于 Figure。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）第 5 页的 Algorithm 1 为例，用 `--clip` 指定区域（`$SKILL_DIR` 指 skill 安装目录）：
+
+```bash
+curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "69,460,526,588"
+```
+
+<img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" width="85%">
+
+抽取结果是 78 KB 的矢量 SVG，缩进、数学符号和上下框线都完整；这类内容没有官方图片可比，但同样可以干净地抽出来。
+
+官方图含图注、复杂矢量 SVG 反而更大等边界案例，见 [docs/comparison](docs/comparison/README.md)。
 
 ## 支持平台
 
@@ -170,16 +185,9 @@ python "$SKILL_DIR/scripts/extract_svg.py" vllm.pdf 5 5 fig5.svg --clip "318,40,
 
 # 批量边界检查（PNG / JPG / SVG / 目录）
 python "$SKILL_DIR/scripts/check_border.py" path/to/images/
-
-# 表格 / 算法伪代码：自动锚定只支持 Figure，用 --clip 指定区域
-# 例：PPO 论文（arXiv:1707.06347）第 5 页的 Algorithm 1
-curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
-python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "69,460,526,588"
 ```
 
-自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可。下面是 PPO 论文 Algorithm 1 的抽取结果（矢量 SVG）：
-
-<img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" width="85%">
+自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可（示例见上文「效果对比」）。
 
 `extract_fig.py` 与 `check_border.py` 会检查四边墨迹比例，超阈值（0.3%）即以退出码 3 报 WARN；`extract_svg.py` 负责渲染与 clip，SVG 的边界复检请配合 `check_border.py`。
 
