@@ -319,12 +319,13 @@ def main():
 </section>''')
 
     page = f'''<!doctype html>
-<html lang="zh"><head><meta charset="utf-8">
+<html lang="zh" data-theme="light"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Auto background gallery</title>
 <style>
 :root {{ color-scheme: light; }}
 html {{ background: #fff; }}
+html[data-theme="dark"] {{ background: #0f172a; color-scheme: dark; }}
 body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         margin: 24px 28px 48px; background: #fff; color: #111; }}
 body[data-theme="dark"] {{ background: #0f172a; color: #e5e7eb; }}
@@ -404,6 +405,7 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 <script>
 const themeButtons = [...document.querySelectorAll('.theme-switch button[data-set]')];
 function setTheme(theme) {{
+  document.documentElement.dataset.theme = theme;
   document.body.dataset.theme = theme;
   themeButtons.forEach(b => b.classList.toggle('active', b.dataset.set === theme));
 }}

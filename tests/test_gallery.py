@@ -23,6 +23,7 @@ class TestGallery:
         assert "background=white" in page
         assert 'class="theme-switch"' in page
         assert 'aria-label="页面主题"' in page
+        assert 'document.documentElement.dataset.theme' in page
         assert 'max-width: 1200px' not in page
         assert 'data-theme="light"' in page
         assert 'data-fmt' not in page
