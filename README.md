@@ -176,7 +176,7 @@ SKILL_DIR=~/.claude/skills/pdf-figure-extract
 # 矢量图 → SVG（推荐，任意缩放不失真）
 python "$SKILL_DIR/scripts/extract_svg.py" paper.pdf 2 1 fig1.svg
 
-# 仅当图中本身是照片 / 扫描位图时用 PNG（自动注入 1.2% 白边；放大受像素限制）
+# 仅当图中本身是照片 / 扫描位图时用 PNG（自动注入 1.2% 边距，颜色跟随背景；放大受像素限制）
 python "$SKILL_DIR/scripts/extract_fig.py" paper.pdf 6 2 fig2.png
 
 # 双栏页 / 特殊图注（Figure 1 |、Fig. 1: 等）→ 显式矩形（pt）
@@ -195,7 +195,7 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 ## 工作原理
 
 1. **caption 锚定**：以 `Figure N:` 图注文本行 bbox 为锚点，向「上」合并 image/vector 块并集作为图区，硬停在 caption 之前；
-2. **安全边距**：PNG 模式注入 1.2% 白边后自检四边；SVG 模式检查 caption 命中与输出文件大小，边界用 `check_border.py` 复检；
+2. **安全边距**：PNG 模式注入 1.2% 边距（颜色跟随背景）后自检四边；SVG 模式检查 caption 命中与输出文件大小，边界用 `check_border.py` 复检；
 3. **背景感知**：边界检查以四角颜色估计背景，深色主题图不误报。
 
 详细设计、已知坑与对策见 [skills/pdf-figure-extract/SKILL.md](skills/pdf-figure-extract/SKILL.md)。

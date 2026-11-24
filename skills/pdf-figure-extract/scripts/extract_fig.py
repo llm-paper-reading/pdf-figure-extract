@@ -3,7 +3,7 @@
 Anchor-based safe extractor:
 - locate "Figure N:" caption on a given page,
 - narrow to the figure area above the caption by union of image/vector rects,
-- render at configurable DPI, then inject guaranteed white margins.
+- render at configurable DPI, then inject a 1.2% margin matching the chosen background.
 
 Usage:
   python extract_fig.py <pdf> <page_1based> <fig_num> <out.png> [--dpi 300] [--margin-pt 20]

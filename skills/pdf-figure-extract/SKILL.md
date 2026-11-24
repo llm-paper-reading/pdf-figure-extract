@@ -27,7 +27,7 @@ metadata:
 2. **定位 Figure**：用 `pdftotext -layout` 或 fitz 找到 `Figure N:` 所在页与 caption 位置。
 3. **抽取**（脚本在本 skill 目录的 `scripts/` 下）：
    - 矢量内容首选 `extract_svg.py` 转 SVG，任意缩放不失真；若 PDF 里的图本身是位图，SVG 会内嵌原图，放大仍受其分辨率限制；
-   - 仅当目标本身是照片 / 扫描位图时才用 `extract_fig.py` 的 PNG 模式（自动注入白边，放大受像素限制）。
+   - 仅当目标本身是照片 / 扫描位图时才用 `extract_fig.py` 的 PNG 模式（注入 1.2% 边距，颜色跟随背景；放大受像素限制）。
 4. **校验**：
    - 文件存在；
    - `extract_fig.py` 会自动检查四边墨迹比例（> 0.3% 即 WARN，退出码 3，**不许忽略**）；SVG 输出用 `check_border.py` 复检；
@@ -46,7 +46,7 @@ metadata:
 前置依赖见 frontmatter 的 `compatibility`：Python 3.10+（pymupdf、Pillow、numpy）、poppler（`pdftocairo`）、librsvg（`rsvg-convert`，仅检查 SVG 时需要）。
 
 ```bash
-# PNG：caption 锚定 + 自动白边 + 边界自检；仅建议用于本身是照片 / 扫描位图的图；fig 支持 "1" 或章节编号 "3.1"
+# PNG：caption 锚定 + 自动边距 + 边界自检；仅建议用于本身是照片 / 扫描位图的图；fig 支持 "1" 或章节编号 "3.1"
 extract_fig.py <pdf> <page> <fig> <out.png> [--dpi 300] [--margin-pt 20] [--clip x0,y0,x1,y1] [--background auto]
 
 # SVG：矢量提取（经 pdftocairo）
