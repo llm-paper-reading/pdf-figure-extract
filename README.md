@@ -13,7 +13,7 @@
 - **矢量优先**：架构图、流程图抽成 SVG，矢量部分任意缩放不失真（若 PDF 内的图本身是位图，SVG 会内嵌原图，放大仍受其分辨率限制）；
 - **裁切准确**：以 `Figure N:` 图注为锚点，自动排除图注、正文与页眉；
 - **自带质检**：PNG 提取后检查四边墨迹，异常以退出码 3 报 WARN；SVG 可用 `check_border.py` 复检；
-- **背景自动适配**：默认 `auto`，按不透明比例与墨色选择白底或深底；论文自带深色底时保留。也可强制 `white` / `dark` / `transparent`，避免透明 SVG 在深色页面看不清；
+- **背景自动适配**：默认 `auto`，论文自带深色底时保留，否则补白底；深色底需显式 `--background dark`。也可强制 `white` / `transparent`，避免透明 SVG 在深色页面看不清；
 - **可复现**：纯本地脚本、无外部服务，可写进 CI，换论文或换版本后重跑；
 - **多客户端**：同一份 skill 可装到 Claude Code、Codex、Cursor 等客户端。
 
@@ -188,7 +188,7 @@ python "$SKILL_DIR/scripts/extract_svg.py" vllm.pdf 5 5 fig5.svg --clip "318,40,
 python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 ```
 
-自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可（示例见上文「效果对比」）。`--background` 默认 `auto`：按不透明比例与墨色选择白底或深底，论文自带深色底时保留；`transparent` 保持透明。
+自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可（示例见上文「效果对比」）。`--background` 默认 `auto`：论文自带深色底时保留，否则补白底；深色底需显式 `--background dark`，`transparent` 保持透明。
 
 `extract_fig.py` 与 `check_border.py` 会检查四边墨迹比例，超阈值（0.3%）即以退出码 3 报 WARN；`extract_svg.py` 负责渲染与 clip，SVG 的边界复检请配合 `check_border.py`。
 

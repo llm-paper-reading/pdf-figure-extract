@@ -58,9 +58,9 @@ class TestResolve:
         assert bgutil.resolve("auto", {"opaque": 0.0, "ink": 0.1, "dark": 0.6,
                                        "light": 0.1, "bg_luma": None}) == "white"
 
-    def test_light_ink_gets_dark(self):
+    def test_light_ink_defaults_to_white(self):
         assert bgutil.resolve("auto", {"opaque": 0.0, "ink": 0.9, "dark": 0.0,
-                                       "light": 0.9, "bg_luma": None}) == "dark"
+                                       "light": 0.9, "bg_luma": None}) == "white"
 
     def test_mixed_ink_defaults_to_white(self):
         assert bgutil.resolve("auto", {"opaque": 0.0, "ink": 0.58, "dark": 0.4,
@@ -79,13 +79,13 @@ class TestAutoBackground:
         assert 'fill="#ffffff"' in out.read_text()
         assert "background=white" in r.stdout
 
-    def test_svg_dark_for_light_ink(self, tmp_path):
+    def test_svg_light_ink_defaults_to_white(self, tmp_path):
         pdf = make_light_ink(tmp_path)
         out = tmp_path / "light.svg"
         r = run("extract_svg.py", pdf, "1", "1", out)
         assert r.returncode == 0, r.stdout + r.stderr
-        assert 'fill="#0f172a"' in out.read_text()
-        assert "background=dark" in r.stdout
+        assert 'fill="#ffffff"' in out.read_text()
+        assert "background=white" in r.stdout
 
     def test_svg_keeps_painted_background(self, tmp_path):
         pdf = make_dark_paper(tmp_path)
@@ -117,14 +117,14 @@ class TestAutoBackground:
         assert (a[0, 0] == 255).all()
         assert "background=white" in r.stdout
 
-    def test_png_auto_dark(self, tmp_path):
+    def test_png_auto_light_ink_defaults_to_white(self, tmp_path):
         pdf = make_light_ink(tmp_path)
         out = tmp_path / "light.png"
         r = run("extract_fig.py", pdf, "1", "1", out, "--dpi", "150")
         assert r.returncode == 0, r.stdout + r.stderr
         corner = np.asarray(Image.open(out).convert("RGB"))[0, 0]
-        assert tuple(corner) == bgutil.DARK
-        assert "background=dark" in r.stdout
+        assert (corner == 255).all()
+        assert "background=white" in r.stdout
 
     def test_png_transparent(self, simple_pdf, tmp_path):
         out = tmp_path / "t.png"

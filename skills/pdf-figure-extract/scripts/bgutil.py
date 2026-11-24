@@ -9,6 +9,7 @@ Samples the clipped region with alpha to answer two questions:
 stays readable without the caller choosing a theme.
 """
 import re
+from pathlib import Path
 
 import fitz
 import numpy as np
@@ -47,11 +48,11 @@ def analyze(page, clip, zoom=0.5):
 
 
 def resolve(mode, info):
-    """Turn `auto` into concrete behavior: keep, white, or dark.
+    """Turn `auto` into keep or white.
 
     Academic figures are authored for white paper, so white is the safe
-    default. A figure that paints a dark background keeps it; only a nearly
-    transparent canvas with light ink and almost no dark ink gets dark.
+    default. A figure that paints a dark background keeps it. `dark` is a
+    manual choice for dark-themed sites, not an automatic decision.
     """
     if mode != "auto":
         return mode
@@ -60,13 +61,11 @@ def resolve(mode, info):
         if info.get("bg_luma") is not None and info["bg_luma"] < 0.35:
             return "keep"
         return "white"
-    if info.get("dark", 1.0) < 0.05 and info.get("light", 0.0) > 0.5:
-        return "dark"
     return "white"
 
 
 def describe(mode, info):
-    ink = "n/a" if info["ink"] is None else "%.2f" % info["ink"]
+    ink = "n/a" if info["ink"] is None else f"{info['ink']:.2f}"
     return f"background={mode} (ink_luma={ink}, opaque={info['opaque']:.2f})"
 
 
@@ -86,7 +85,8 @@ def svg_add_background(path, mode):
     """Paint a full-canvas rect behind the SVG content; no-op for keep/transparent."""
     if mode not in HEX:
         return False
-    text = open(path, encoding="utf-8").read()
+    path = Path(path)
+    text = path.read_text(encoding="utf-8")
     root = re.search(r"<svg[^>]*>", text)
     if not root:
         return False
@@ -100,5 +100,5 @@ def svg_add_background(path, mode):
             return False
         w, h = wm.group(1), hm.group(1)
     rect = f'<rect x="0" y="0" width="{w}" height="{h}" fill="{HEX[mode]}"/>'
-    open(path, "w", encoding="utf-8").write(text[: root.end()] + "\n" + rect + text[root.end():])
+    path.write_text(text[: root.end()] + "\n" + rect + text[root.end():], encoding="utf-8")
     return True

@@ -71,7 +71,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 background 判定：不透明 0.15 < 0.50，暗墨 0.41 ≥ 0.05 → white（透明画布默认）
 ```
 
-这样不用去翻 log 就知道为什么选了白底、深底或保留原底。
+这样不用去翻 log 就知道为什么选了白底、深底（手动指定）或保留原底。
 
 图片都是抽取结果本身，不是重新排版的截图。透明 SVG 会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
 
@@ -91,7 +91,7 @@ page 2 · fig 1 · /tmp/fa/fa.pdf
 ```
 
 - **透明 SVG**：切到 Dark 时透明区域透出深色，黑色文字可能看不清——这正是需要 `--background auto` 的原因；切回 Light 又恢复正常，两者对比即可确认画布是否透明；
-- **带底色的图像**（auto 判定为 white / dark / keep）：无论页面主题是什么，图都保持自身底色；
+- **带底色的图像**（auto 判定为 white / keep，或手动 dark）：无论页面主题是什么，图都保持自身底色；
 - **SVG vs PNG**：SVG 是矢量、可缩放；PNG 是位图，按 `--dpi` 渲染。并排模式最容易看出清晰度与体积差异。
 
 想对照「不加底」的原始状态：
@@ -105,7 +105,7 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 | 徽章 | 含义 | 怎么看 |
 |---|---|---|
 | `white` | auto 补了白底 | 切到 Light / Dark，图都保持白底 |
-| `dark` | auto 补了深底 `#0f172a` | 图自身是深色块，浅色字正常 |
+| `dark` | 手动 `--background dark` 补了深底 | 图自身是深色块，浅色字正常 |
 | `keep` | 论文自带底色，未覆盖 | 图保持原有底色 |
 | `transparent` | 未加底 | 切到 Dark 时若文字看不清，说明需要加底 |
 | `failed` | 抽取失败 | 展开 log 查看错误 |

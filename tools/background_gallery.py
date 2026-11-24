@@ -130,9 +130,6 @@ def explain_background(requested, bg):
         return (f"不透明 {opaque:.2f} ≥ 0.50，背景亮度 {shown} ≥ 0.35 "
                 f"→ white（图自带浅色底）")
     dark, light = bg.get("dark", 0.0), bg.get("light", 0.0)
-    if dark < 0.05 and light > 0.5:
-        return (f"不透明 {opaque:.2f} < 0.50，暗墨 {dark:.2f} < 0.05、"
-                f"亮墨 {light:.2f} > 0.50 → dark")
     if dark >= 0.05:
         return (f"不透明 {opaque:.2f} < 0.50，暗墨 {dark:.2f} ≥ 0.05 "
                 f"→ white（透明画布默认）")
@@ -398,7 +395,8 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 <strong>auto 背景判定规则</strong>
 <ol>
 <li>不透明 ≥ 0.50：背景亮度 &lt; 0.35 → <code>keep</code>（保留论文深色底）；否则 <code>white</code>。</li>
-<li>不透明 &lt; 0.50：暗墨 &lt; 5% 且亮墨 &gt; 50% → <code>dark</code>；否则 <code>white</code>（透明画布默认）。</li>
+<li>不透明 &lt; 0.50：<code>white</code>（透明画布默认）。</li>
+<li>需要深色底时显式指定 <code>--background dark</code>；auto 不会自动选深底。</li>
 </ol>
 </section>
 {"".join(cards)}
