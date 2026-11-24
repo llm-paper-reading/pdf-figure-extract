@@ -15,3 +15,16 @@ python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip
 
 - 说明：`--clip` 单位是 PDF 点，坐标基于该版本 PDF 第 5 页的版面；论文重排版后需要重新测量。
 - 版权：图形内容版权归原作者，仅用于展示本技能可以抽取算法伪代码，不在仓库根目录 MIT 许可范围内。
+
+## PPO Table 1
+
+- 论文：同上，[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)
+- 生成命令：
+
+```bash
+curl -sL -o ppo.pdf https://arxiv.org/pdf/1707.06347
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 6 1 ppo-table1.svg --clip "165,370,430,547"
+```
+
+- 说明：该表在第 6 页，caption 位于表格下方；clip 下界取在表格底线之上、caption 之前，上界包含表头与顶部横线。
+- 版权：同 Algorithm 1，仅用于展示表格抽取效果，不在 MIT 许可范围内。

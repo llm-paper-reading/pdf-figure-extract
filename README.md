@@ -51,18 +51,27 @@
 
 A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
 
-**没有官方图片时：Algorithm 1（PPO）**
+**没有官方图片时：表格与算法伪代码（PPO）**
 
-很多论文没有官方图库，表格和算法伪代码也不属于 Figure。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）第 5 页的 Algorithm 1 为例，用 `--clip` 指定区域（`$SKILL_DIR` 指 skill 安装目录）：
+很多论文没有官方图库，表格和算法伪代码也不属于 Figure。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）为例，用 `--clip` 指定区域（`$SKILL_DIR` 指 skill 安装目录）：
 
 ```bash
 curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
+
+# Algorithm 1（第 5 页）
 python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
+
+# Table 1（第 6 页；上界要留出表头）
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 6 1 ppo-table1.svg --clip "165,370,430,547"
 ```
+
+Algorithm 1（78 KB，缩进、数学符号与上下框线完整）：
 
 <img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" width="85%">
 
-抽取结果是 78 KB 的矢量 SVG，缩进、数学符号和上下框线都完整；这类内容没有官方图片可比，但同样可以干净地抽出来。
+Table 1（约 70 KB，表头、横线与 11 行数据完整，未带入下方 caption）：
+
+<img src="docs/examples/ppo-table1.svg" alt="PPO Table 1 抽取结果" width="85%">
 
 官方图含图注、复杂矢量 SVG 反而更大等边界案例，见 [docs/comparison](docs/comparison/README.md)。
 
