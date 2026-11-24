@@ -179,9 +179,9 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
 
-### 没有官方图片时：表格与算法伪代码（PPO）
+### 表格与算法伪代码（PPO）
 
-很多论文没有官方图库，表格和算法伪代码也不属于 Figure。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）为例，用 `--clip` 指定区域（`$SKILL_DIR` 指 skill 安装目录）：
+表格和算法伪代码没有 `Figure N:` 图注，用 `--clip` 框选区域即可。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）为例（`$SKILL_DIR` 指 skill 安装目录）：
 
 ```bash
 curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
