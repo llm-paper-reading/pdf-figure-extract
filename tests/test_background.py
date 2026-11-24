@@ -95,12 +95,6 @@ class TestAutoBackground:
         assert "background=keep" in r.stdout
         assert 'fill="#ffffff"' not in out.read_text()
 
-    def test_forced_dark(self, simple_pdf, tmp_path):
-        out = tmp_path / "forced.svg"
-        r = run("extract_svg.py", simple_pdf, "1", "1", out, "--background", "dark")
-        assert r.returncode == 0
-        assert 'fill="#0f172a"' in out.read_text()
-
     def test_transparent_svg(self, simple_pdf, tmp_path):
         out = tmp_path / "t.svg"
         r = run("extract_svg.py", simple_pdf, "1", "1", out, "--background", "transparent")

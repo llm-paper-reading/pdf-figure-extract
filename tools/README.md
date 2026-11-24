@@ -91,7 +91,7 @@ page 2 · fig 1 · /tmp/fa/fa.pdf
 ```
 
 - **透明 SVG**：切到 Dark 时透明区域透出深色，黑色文字可能看不清——这正是需要 `--background auto` 的原因；切回 Light 又恢复正常，两者对比即可确认画布是否透明；
-- **带底色的图像**（auto 判定为 white / keep，或手动 dark）：无论页面主题是什么，图都保持自身底色；
+- **带底色的图像**（auto 判定为 white / keep）：无论页面主题是什么，图都保持自身底色；
 - **SVG vs PNG**：SVG 是矢量、可缩放；PNG 是位图，按 `--dpi` 渲染。并排模式最容易看出清晰度与体积差异。
 
 想对照「不加底」的原始状态：
@@ -105,7 +105,6 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 | 徽章 | 含义 | 怎么看 |
 |---|---|---|
 | `white` | auto 补了白底 | 切到 Light / Dark，图都保持白底 |
-| `dark` | 手动 `--background dark` 补了深底 | 图自身是深色块，浅色字正常 |
 | `keep` | 论文自带底色，未覆盖 | 图保持原有底色 |
 | `transparent` | 未加底 | 切到 Dark 时若文字看不清，说明需要加底 |
 | `failed` | 抽取失败 | 展开 log 查看错误 |
@@ -131,14 +130,14 @@ python tools/background_gallery.py /tmp/manifest.txt --background transparent --
 
 这些值直接来自 PDF 与输出文件，不依赖 `background` 判定；刷新/重跑后可以拿来对比同一张图在不同抽取参数下的变化。
 
-验收标准：分别在 Light 与 Dark 下看一遍，**两种页面主题里文字都要可读**。透明画布重点看 Dark；发现不适配的，记录 PDF/页码/图号，再用 `--background white` 或 `dark` 强制验证。
+验收标准：分别在 Light 与 Dark 下看一遍，**两种页面主题里文字都要可读**。透明画布重点看 Dark；发现不适配的，记录 PDF/页码/图号，再用 `--background white` 或 `transparent` 强制验证。
 
 ## 参数
 
 | 参数 | 默认 | 说明 |
 |---|---|---|
 | `--out DIR` | `/tmp/auto-gallery` | 输出目录 |
-| `--background` | `auto` | `auto` / `white` / `dark` / `transparent` |
+| `--background` | `auto` | `auto` / `white` / `transparent` |
 | `--dpi` | `200` | PNG 预览的渲染 dpi（300 更清晰但更慢） |
 | `--strict` | 关 | 有失败条目时以退出码 1 结束 |
 

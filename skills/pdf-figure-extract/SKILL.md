@@ -56,7 +56,7 @@ extract_svg.py <pdf> <page> <fig> <out.svg> [--margin-pt 20] [--clip x0,y0,x1,y1
 check_border.py <path...>
 ```
 
-`--background` 默认 `auto`：PDF 自带深色底时保留（`keep`），其余情况补白底（`white`）。`dark`（`#0f172a`）不会被 auto 选中，只有需要放到深色网站时才显式指定；`transparent` 保持透明（PNG 会保留 alpha）。强制模式与墨色对比不足时会打 WARN。
+`--background` 默认 `auto`：PDF 自带深色底时保留（`keep`），其余情况补白底（`white`）。需要透明时显式 `transparent`，让页面/幻灯片背景透出（PNG 会保留 alpha）；强制模式与墨色对比不足时会打 WARN。
 
 `--clip` 单位为 PDF 点（pt），指定时跳过 caption 锚定，用于双栏排版、特殊图注，以及表格 / 算法伪代码等没有 Figure caption 的内容；坐标先用 `get_text('dict')` 与 `get_drawings()` 量出。
 
@@ -100,6 +100,6 @@ python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
 - [ ] clip 内无 caption / 页眉 / 正文
 - [ ] 非 Figure 内容：clip 内无相邻正文 / 另一栏 / 标题行
 - [ ] SVG 输出已用 `check_border.py` 复检
-- [ ] 背景可读：`--background auto` 的判定与预期一致（必要时强制 `white` / `dark`）
+- [ ] 背景可读：`--background auto` 的判定与预期一致（必要时强制 `white` / `transparent`）
 - [ ] 页面上图片正常渲染、无裂图
 - [ ] 图注由站点自身样式控制（不携带 PDF caption）

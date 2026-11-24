@@ -200,7 +200,7 @@ def main():
     ap.add_argument("manifest")
     ap.add_argument("--out", default="/tmp/auto-gallery")
     ap.add_argument("--background", default="auto",
-                    choices=("auto", "white", "dark", "transparent"))
+                    choices=("auto", "white", "transparent"))
     ap.add_argument("--dpi", type=int, default=200, help="PNG 预览的渲染 dpi（默认 200）")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any entry fails")
     args = ap.parse_args()
@@ -358,7 +358,6 @@ body[data-theme="dark"] .theme-switch {{ background: #0f172acc; border-color: #f
 body[data-theme="dark"] .decision {{ background: #2563eb2a; }}
 .badge {{ font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #8884; }}
 .badge.white {{ background: #e5e7eb; color: #111; }}
-.badge.dark {{ background: #1e293b; color: #eee; }}
 .badge.keep {{ background: #d1fae5; color: #064e3b; }}
 .badge.transparent {{ background: #fef3c7; color: #78350f; }}
 .badge.failed {{ background: #fee2e2; color: #7f1d1d; }}
@@ -396,7 +395,7 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 <ol>
 <li>不透明 ≥ 0.50：背景亮度 &lt; 0.35 → <code>keep</code>（保留论文深色底）；否则 <code>white</code>。</li>
 <li>不透明 &lt; 0.50：<code>white</code>（透明画布默认）。</li>
-<li>需要深色底时显式指定 <code>--background dark</code>；auto 不会自动选深底。</li>
+<li>需要放到深色页面时用 <code>--background transparent</code>，让页面背景透出。</li>
 </ol>
 </section>
 {"".join(cards)}

@@ -2,11 +2,11 @@
 """Background decision for extracted figures.
 
 Samples the clipped region with alpha to answer two questions:
-- does the figure already paint its own background (opaque canvas)?
-- if not, is the ink dark or light?
+- does the figure already paint its own dark background?
+- if not, the safe default is white, because papers are authored for white paper.
 
-`auto` picks white behind dark ink and a dark slate behind light ink, so text
-stays readable without the caller choosing a theme.
+`auto` therefore returns `keep` or `white` only. Transparent output is
+available explicitly for pages/slides whose own background should show through.
 """
 import re
 from pathlib import Path
@@ -15,10 +15,9 @@ import fitz
 import numpy as np
 
 WHITE = (255, 255, 255)
-DARK = (15, 23, 42)  # #0f172a
-COLORS = {"white": WHITE, "dark": DARK}
-HEX = {"white": "#ffffff", "dark": "#0f172a"}
-MODES = ("auto", "white", "dark", "transparent")
+COLORS = {"white": WHITE}
+HEX = {"white": "#ffffff"}
+MODES = ("auto", "white", "transparent")
 
 
 def analyze(page, clip, zoom=0.5):
@@ -51,8 +50,8 @@ def resolve(mode, info):
     """Turn `auto` into keep or white.
 
     Academic figures are authored for white paper, so white is the safe
-    default. A figure that paints a dark background keeps it. `dark` is a
-    manual choice for dark-themed sites, not an automatic decision.
+    default. A figure that paints a dark background keeps it. For dark-themed
+    sites, use `transparent` and let the page background show through.
     """
     if mode != "auto":
         return mode

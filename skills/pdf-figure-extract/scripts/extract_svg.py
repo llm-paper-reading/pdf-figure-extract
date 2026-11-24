@@ -5,7 +5,7 @@ size. Falls back to scripted raster crop if pdftocairo is missing.
 
 Usage:
   python extract_svg.py <pdf> <page_1based> <fig_num> <out.svg> [--margin-pt 20]
-                        [--background auto|white|dark|transparent]
+                        [--background auto|white|transparent]
 """
 import argparse
 import os
@@ -85,8 +85,8 @@ def main():
     ap.add_argument('--clip', type=str, default=None,
                     help='explicit clip rect x0,y0,x1,y1 in pt (for two-column pages)')
     ap.add_argument('--background', choices=bgutil.MODES, default='auto',
-                    help='auto (default): white behind dark ink, dark behind light ink; '
-                         'white/dark force a color; transparent leaves the SVG unpainted')
+                    help='auto (default): keep a painted dark background, otherwise white; '
+                         'white forces white; transparent leaves the SVG unpainted')
     args = ap.parse_args()
     doc = fitz.open(args.pdf)
     page = doc.load_page(args.page - 1)
