@@ -145,7 +145,7 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 ## 效果与示例
 
-### 官方仓库图对比
+### Figure：架构图与 benchmark 图（FlashAttention）
 
 以 **FlashAttention**（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）为例，官方仓库 README 的 `flashattn_banner.jpg` 就是论文 Figure 1：
 
