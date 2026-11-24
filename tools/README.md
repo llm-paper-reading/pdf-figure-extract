@@ -63,7 +63,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 ## 怎么读页面
 
-页面顶部只有 **Light / Dark** 两个按钮，切换整页主题（背景与文字颜色）。三列固定并排：第一列 SVG 与第三列 PNG 都按 `--background` 抽取（默认 `auto`），第二列固定 `transparent` 作对照。
+页面右上角有 **Light / Dark** 两个图标按钮，切换整页主题（背景与文字颜色）。页面按全屏宽度布局。三列固定并排：第一列 SVG 与第三列 PNG 都按 `--background` 抽取（默认 `auto`），第二列固定 `transparent` 作对照。
 
 页面顶部还会展示 **auto 判定规则**；每张卡片在属性卡片下方给出本条的实际判定依据，例如：
 
@@ -76,7 +76,7 @@ background 判定：不透明 0.15 < 0.50，暗墨 0.41 ≥ 0.05 → white（透
 图片都是抽取结果本身，不是重新排版的截图。透明 SVG 会跟随页面背景变化——这就是读者在浅色 / 深色网站上看到的效果。
 
 ```text
-[Light] [Dark]
+右上角：☀ / ☾                    ← 切换页面主题
 
 fa-p2-f1  [white]
 page 2 · fig 1 · /tmp/fa/fa.pdf

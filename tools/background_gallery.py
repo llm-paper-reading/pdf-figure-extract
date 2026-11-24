@@ -326,7 +326,7 @@ def main():
 :root {{ color-scheme: light; }}
 html {{ background: #fff; }}
 body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        margin: 24px; max-width: 1200px; background: #fff; color: #111; }}
+        margin: 24px 28px 48px; background: #fff; color: #111; }}
 body[data-theme="dark"] {{ background: #0f172a; color: #e5e7eb; }}
 h1 {{ font-size: 20px; }}
 .card {{ border: 1px solid #8884; border-radius: 12px; padding: 16px; margin: 20px 0; }}
@@ -342,17 +342,20 @@ figcaption .cap {{ display: block; font-size: 11px; margin-top: 2px;
 @media (max-width: 1000px) {{ .previews {{ grid-template-columns: 1fr; }} }}
 .sep {{ width: 1px; align-self: stretch; background: #8884; margin: 0 6px; }}
 img {{ width: 100%; height: auto; display: block; }}
-.controls {{ display: flex; gap: 8px; margin: 12px 0; position: sticky; top: 0;
-             padding: 10px 0; background: inherit; z-index: 2; }}
-.controls button {{ font: inherit; padding: 6px 14px; border-radius: 8px;
-                    border: 1px solid #8886; background: #8881; color: inherit; cursor: pointer; }}
-body[data-theme="dark"] .controls button {{ background: #ffffff14; border-color: #ffffff33; }}
-.controls button.active {{ background: #2563eb; border-color: #2563eb; color: #fff; }}
+.theme-switch {{ position: fixed; top: 16px; right: 20px; z-index: 10;
+                display: flex; gap: 4px; padding: 4px; border-radius: 999px;
+                border: 1px solid #8884; background: #ffffffcc;
+                backdrop-filter: blur(8px); }}
+body[data-theme="dark"] .theme-switch {{ background: #0f172acc; border-color: #ffffff22; }}
+.theme-switch button {{ width: 34px; height: 34px; display: flex; align-items: center;
+                        justify-content: center; border: 0; border-radius: 999px;
+                        background: transparent; color: inherit; cursor: pointer; }}
+.theme-switch button.active {{ background: #2563eb; color: #fff; }}
 .rules {{ margin: 14px 0; padding: 12px 16px; border: 1px solid #8884; border-radius: 10px; font-size: 13px; }}
 .rules ol {{ margin: 6px 0 0 18px; padding: 0; }}
 .rules li {{ margin: 3px 0; }}
 .rules code {{ font-family: ui-monospace, monospace; }}
-.decision {{ margin: 10px auto 0; max-width: 980px; padding: 8px 12px; border-radius: 8px;
+.decision {{ margin: 10px 0 0; max-width: none; padding: 8px 12px; border-radius: 8px;
              background: #2563eb14; font-size: 12px; text-align: center; }}
 body[data-theme="dark"] .decision {{ background: #2563eb2a; }}
 .badge {{ font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #8884; }}
@@ -362,7 +365,7 @@ body[data-theme="dark"] .decision {{ background: #2563eb2a; }}
 .badge.transparent {{ background: #fef3c7; color: #78350f; }}
 .badge.failed {{ background: #fee2e2; color: #7f1d1d; }}
 pre {{ overflow: auto; font-size: 12px; }}
-.source {{ margin: 14px auto 0; max-width: 1100px; padding: 16px 18px;
+.source {{ margin: 14px 0 0; max-width: none; padding: 16px 18px;
           border: 1px solid #2563eb40; border-radius: 12px;
           background: linear-gradient(180deg, #2563eb12, #2563eb04); }}
 body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24, #2563eb0a); }}
@@ -381,10 +384,14 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 </style></head>
 <body data-theme="light">
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题（Light / Dark）；三列固定并排。本次生成使用 <code>--background={args.background}</code>：第一列 SVG 与第三列 PNG 都按该模式抽取，第二列固定 <code>transparent</code> 作对照。</p>
-<div class="controls">
-<button data-set="light" class="active">Light</button>
-<button data-set="dark">Dark</button>
+<p>共 {len(entries)} 项，失败 {failures} 项。右上角图标切换页面主题（Light / Dark）；三列固定并排。本次生成使用 <code>--background={args.background}</code>：第一列 SVG 与第三列 PNG 都按该模式抽取，第二列固定 <code>transparent</code> 作对照。</p>
+<div class="theme-switch" role="group" aria-label="页面主题">
+<button data-set="light" class="active" title="Light" aria-label="Light">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<button data-set="dark" title="Dark" aria-label="Dark">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+</button>
 </div>
 <section class="rules">
 <strong>auto 背景判定规则</strong>
@@ -395,7 +402,7 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 </section>
 {"".join(cards)}
 <script>
-const themeButtons = [...document.querySelectorAll('.controls button[data-set]')];
+const themeButtons = [...document.querySelectorAll('.theme-switch button[data-set]')];
 function setTheme(theme) {{
   document.body.dataset.theme = theme;
   themeButtons.forEach(b => b.classList.toggle('active', b.dataset.set === theme));

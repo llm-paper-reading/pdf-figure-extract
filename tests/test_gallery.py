@@ -21,7 +21,9 @@ class TestGallery:
         assert r.returncode == 0, r.stdout + r.stderr
         page = (out / "gallery.html").read_text(encoding="utf-8")
         assert "background=white" in page
-        assert 'class="controls"' in page
+        assert 'class="theme-switch"' in page
+        assert 'aria-label="页面主题"' in page
+        assert 'max-width: 1200px' not in page
         assert 'data-theme="light"' in page
         assert 'data-fmt' not in page
         assert "图区尺寸" in page and "内嵌位图" in page
