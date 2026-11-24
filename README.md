@@ -145,7 +145,7 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 ## 效果与示例
 
-### Figure：架构图与 benchmark 图（FlashAttention）
+### Figure：架构图与 benchmark 图
 
 以 **FlashAttention**（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）为例，官方仓库 README 的 `flashattn_banner.jpg` 就是论文 Figure 1：
 
@@ -179,7 +179,7 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
 
-### 表格与算法伪代码（PPO）
+### 表格与算法伪代码
 
 表格和算法伪代码没有 `Figure N:` 图注，用 `--clip` 框选区域即可。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）为例（`$SKILL_DIR` 指 skill 安装目录）：
 
