@@ -29,7 +29,7 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/flash-attention-figure1.svg" alt="本技能抽取的 SVG" height="200"><br>
-<sub>本技能 SVG：160 KB，放大不失真</sub>
+<sub>本技能 SVG：160 KB（约官方 51%）· 矢量可缩放</sub>
 </td>
 </tr>
 </table>
@@ -44,20 +44,10 @@
 </td>
 <td width="50%" align="center">
 <img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG" height="200"><br>
-<sub>本技能 SVG：313 KB</sub>
+<sub>本技能 SVG：313 KB（约官方 85%）· 矢量可缩放</sub>
 </td>
 </tr>
 </table>
-
-| 图 | 官方图片 | 本技能 SVG | 优势 |
-|---|---|---|---|
-| Figure 1 | JPG 1650×645，315 KB | **160 KB** | 约为官方 51%，矢量可缩放 |
-| A100 benchmark | PNG 1878×1314，369 KB | **313 KB** | 约为官方 85%，矢量可缩放 |
-
-- **更清晰**：SVG 保存路径与字形，矢量部分任意放大不失真，内嵌位图仍受原图分辨率限制；
-- **通常更小**：上表两例约为官方图片的 51% 与 85%；
-- **不夹带图注**：按 caption 锚定，天然停在 `Figure N: ...` 之前；
-- **可复现**：一条命令生成（PNG 模式会自检四边墨迹），可写进 CI。
 
 A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
 
