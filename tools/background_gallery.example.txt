@@ -3,16 +3,13 @@
 #   curl -sL -o /tmp/fa.pdf      https://arxiv.org/pdf/2205.14135
 #   curl -sL -o /tmp/flash2.pdf  https://tridao.me/publications/flash2/flash2.pdf
 #   curl -sL -o /tmp/ppo.pdf     https://arxiv.org/pdf/1707.06347
-#   curl -sL -o /tmp/ofa.pdf     https://arxiv.org/pdf/2302.11939
 
 # FlashAttention Figure 1（单栏，自动白底）
 /tmp/fa.pdf 2 1
 
-# FlashAttention-2 A100 benchmark（图上方紧邻正文，需 clip）
+# FlashAttention-2 A100 性能对比图（图上方紧邻正文，需 clip）
 /tmp/flash2.pdf 10 4 57.8,366,554.2,700
 
 # PPO Algorithm 1（算法伪代码，深色页面上需有底色）
 /tmp/ppo.pdf 5 1 60,455,535,600
 
-# One Fits All Figure 2（含内嵌位图）
-/tmp/ofa.pdf 4 2
