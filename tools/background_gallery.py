@@ -253,8 +253,11 @@ def main():
         png_info = png_meta(d / "extracted.png") if results["png"]["ok"] else None
 
         figures = []
-        for fmt, label in (("svg", "SVG（当前背景）"), ("transparent", "SVG（透明底）"),
-                           ("png", f"PNG（{args.dpi} dpi）")):
+        for fmt, label in (
+            ("svg", f"SVG（background={args.background}）"),
+            ("transparent", "SVG（background=transparent）"),
+            ("png", f"PNG（background={args.background} · {args.dpi} dpi）"),
+        ):
             if results[fmt]["ok"]:
                 body = (f'<img src="{name}/{_filename(fmt)}" '
                         f'alt="{html.escape(name)} {fmt}">')
@@ -378,7 +381,7 @@ body[data-theme="dark"] .source {{ background: linear-gradient(180deg, #2563eb24
 </style></head>
 <body data-theme="light">
 <h1>自动背景判定画廊</h1>
-<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题（Light / Dark）；SVG、透明 SVG、PNG 固定并排展示。透明 SVG 会随页面背景变化；带底色的图像在两种主题下保持一致。</p>
+<p>共 {len(entries)} 项，失败 {failures} 项。顶部切换页面主题（Light / Dark）；三列固定并排。本次生成使用 <code>--background={args.background}</code>：第一列 SVG 与第三列 PNG 都按该模式抽取，第二列固定 <code>transparent</code> 作对照。</p>
 <div class="controls">
 <button data-set="light" class="active">Light</button>
 <button data-set="dark">Dark</button>

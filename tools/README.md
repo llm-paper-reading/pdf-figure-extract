@@ -63,7 +63,7 @@ python -m http.server -d /tmp/auto-gallery 8000
 
 ## 怎么读页面
 
-页面顶部只有 **Light / Dark** 两个按钮，切换整页主题（背景与文字颜色）。SVG、透明 SVG、PNG 固定并排展示，不做产物切换。
+页面顶部只有 **Light / Dark** 两个按钮，切换整页主题（背景与文字颜色）。三列固定并排：第一列 SVG 与第三列 PNG 都按 `--background` 抽取（默认 `auto`），第二列固定 `transparent` 作对照。
 
 页面顶部还会展示 **auto 判定规则**；每张卡片在属性卡片下方给出本条的实际判定依据，例如：
 
