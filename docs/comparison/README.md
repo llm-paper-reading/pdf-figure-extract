@@ -6,7 +6,7 @@
 
 - 论文：Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, Christopher Ré. *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*. NeurIPS 2022. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)
 - 官方仓库：[Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)，BSD-3-Clause
-- 对应官方图片：`assets/flashattn_banner.jpg`（仓库 README 顶部图，即论文 Figure 1）
+- 对应官方图片：`assets/flashattn_banner.jpg`（仓库 README 顶部图，即论文 Figure 1）；本目录保留一份副本 `flashattn_banner.jpg`，便于离线/内网查看，按 BSD-3-Clause 使用并注明来源。
 - 生成命令：
 
 ```bash
@@ -19,7 +19,7 @@ python "$SKILL_DIR/scripts/extract_svg.py" fa.pdf 2 1 flash-attention-figure1.sv
 ### FlashAttention-2 benchmark 图
 
 - 论文：Tri Dao. *FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning*. 2023. [PDF](https://tridao.me/publications/flash2/flash2.pdf)
-- 对应官方图片：`assets/flash2_a100_fwd_bwd_benchmark.png`（Figure 4，A100）
+- 对应官方图片：`assets/flash2_a100_fwd_bwd_benchmark.png`（Figure 4，A100）；本目录保留一份副本 `flash2_a100_fwd_bwd_benchmark.png`，按官方仓库的 BSD-3-Clause 使用。
 - 生成命令：
 
 ```bash
@@ -46,5 +46,5 @@ python "$SKILL_DIR/scripts/extract_svg.py" ofa.pdf 4 2 one-fits-all-figure2.svg 
 
 - 图形内容版权归各论文作者所有；
 - One Fits All 的对比图按 CC BY-NC-SA 4.0 使用，**不得商用**；
-- README 中引用的官方仓库图片未复制进本仓库，仅通过 GitHub 原始链接展示，版权归原作者所有；
+- FlashAttention 的官方图片（`flashattn_banner.jpg`、`flash2_a100_fwd_bwd_benchmark.png`）复制自 [Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)，按 BSD-3-Clause 使用并保留来源说明；
 - 本目录内容不在仓库根目录 MIT 许可的覆盖范围内。如权利人希望移除相关素材，请开 issue 说明，我们会尽快处理。

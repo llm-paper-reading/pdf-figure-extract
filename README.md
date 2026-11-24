@@ -24,7 +24,7 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flashattn_banner.jpg" alt="官方仓库 JPG" height="200"><br>
+<img src="docs/comparison/flashattn_banner.jpg" alt="官方仓库 JPG" height="200"><br>
 <sub>官方 JPG：1650×645，315 KB</sub>
 </td>
 <td width="50%" align="center">
@@ -39,7 +39,7 @@
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="https://raw.githubusercontent.com/Dao-AILab/flash-attention/main/assets/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" height="200"><br>
+<img src="docs/comparison/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" height="200"><br>
 <sub>官方 PNG：1878×1314，369 KB</sub>
 </td>
 <td width="50%" align="center">
@@ -258,4 +258,4 @@ python -m http.server -d /tmp/auto-gallery 8000   # 打开 http://localhost:8000
 
 代码与文档采用 [MIT](LICENSE)。
 
-`docs/comparison/` 与 `docs/examples/` 下的对比图来自论文，版权归原作者：FlashAttention 图形随 BSD-3-Clause 官方仓库发布，One Fits All 采用 CC BY-NC-SA 4.0（仅限非商业使用），PPO 图形按 arXiv 非独占许可使用，均不在 MIT 许可范围内。详见 [docs/comparison/README.md](docs/comparison/README.md) 与 [docs/examples/README.md](docs/examples/README.md)。
+`docs/comparison/` 与 `docs/examples/` 下的对比图来自论文，版权归原作者：FlashAttention 图形复制自 BSD-3-Clause 官方仓库，One Fits All 采用 CC BY-NC-SA 4.0（仅限非商业使用），PPO 图形按 arXiv 非独占许可使用，均不在 MIT 许可范围内。详见 [docs/comparison/README.md](docs/comparison/README.md) 与 [docs/examples/README.md](docs/examples/README.md)。
