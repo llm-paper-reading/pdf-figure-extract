@@ -4,7 +4,7 @@
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-10b981)](https://agentskills.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-从论文 PDF 中抽取可直接使用的图片：矢量内容输出 **SVG**（推荐），位图内容输出 **PNG**。除了架构图、流程图、曲线图，也能抽取**表格**、**算法伪代码**，以及任意用 `--clip` 框选的区域。遵循 [Agent Skills 开放规范](https://agentskills.io)，可安装到 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
+从论文 PDF 中抽取可直接使用的图片：矢量内容输出 **SVG**（推荐），位图内容输出 **PNG**。除了架构图、流程图、曲线图，也能抽取**表格**、**算法伪代码**、**公式**，以及任意用 `--clip` 框选的区域。遵循 [Agent Skills 开放规范](https://agentskills.io)，可安装到 Claude Code、Codex、Cursor、Cline、Gemini CLI 等客户端。
 
 ## 能抽取什么
 
@@ -13,13 +13,14 @@
 | Figure | 架构图、流程图、曲线图、实验对比图 | 自动识别 `Figure N:` 图注 |
 | Table | 实验结果表、消融表 | `--clip` 指定区域（含表头与横线，不含 caption） |
 | Algorithm | 算法伪代码、流程伪代码 | `--clip` 指定区域（含缩进、数学符号与上下框线） |
-| 其他 | 任意图区、公式块、特殊排版区域 | `--clip` |
+| Formula | 单条公式，或连续多条公式合并成一张图 | `--clip` 指定区域 |
+| 其他 | 任意图区、特殊排版区域 | `--clip` |
 
-Figure 有统一图注，可以自动锚定；表格和算法伪代码没有固定格式，用 `--clip` 精确框选即可。两者都支持 SVG / PNG 与自动背景。
+Figure 有统一图注，可以自动锚定；表格、算法伪代码和公式没有固定格式，用 `--clip` 精确框选即可，都支持 SVG / PNG 与自动背景。
 
 ## 主要优势
 
-- **不止 Figure**：架构图、流程图、表格、算法伪代码都能抽；
+- **不止 Figure**：架构图、流程图、表格、算法伪代码、公式都能抽；
 - **矢量优先**：矢量内容输出 SVG，任意缩放不失真（若 PDF 内的图本身是位图，SVG 会内嵌原图，放大仍受其分辨率限制）；
 - **裁切准确**：以 `Figure N:` 图注为锚点，自动排除图注、正文与页眉；
 - **自带质检**：PNG 提取后检查四边墨迹，异常以退出码 3 报 WARN；SVG 可用 `check_border.py` 复检；
@@ -49,7 +50,7 @@ npx skills add llm-paper-reading/pdf-figure-extract
 # 只装给 Claude Code 与 Codex，用户级，免交互
 npx skills add llm-paper-reading/pdf-figure-extract -g -a claude-code -a codex -y
 
-# 固定版本（示例：把 v1.1.0 换成你要的 tag）
+# 固定版本（示例：使用已发布的 tag，如 v1.1.0）
 npx skills add llm-paper-reading/pdf-figure-extract@v1.1.0 -a claude-code
 ```
 
@@ -145,7 +146,7 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 ## 效果与示例
 
-### Figure：架构图与 benchmark 图
+### 架构图与性能对比图
 
 以 **FlashAttention**（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）为例，官方仓库 README 的 `flashattn_banner.jpg` 就是论文 Figure 1：
 
@@ -162,16 +163,16 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 </tr>
 </table>
 
-同一仓库的 A100 benchmark 图（出自 FlashAttention-2 Figure 4）：
+同一仓库的 A100 性能对比图（出自 FlashAttention-2 Figure 4）：
 
 <table>
 <tr>
 <td width="50%" align="center">
-<img src="docs/comparison/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 benchmark" height="200"><br>
+<img src="docs/comparison/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 性能对比图" height="200"><br>
 <sub>官方 PNG：1878×1314，369 KB</sub>
 </td>
 <td width="50%" align="center">
-<img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 benchmark SVG" height="200"><br>
+<img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 性能对比图 SVG" height="200"><br>
 <sub>本技能 SVG：313 KB（约官方 85%）· 矢量可缩放</sub>
 </td>
 </tr>
@@ -179,9 +180,9 @@ python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 
 A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
 
-### 表格与算法伪代码
+### 表格、伪代码与公式
 
-表格和算法伪代码没有 `Figure N:` 图注，用 `--clip` 框选区域即可。以 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)）为例（`$SKILL_DIR` 指 skill 安装目录）：
+表格、算法伪代码和公式没有 `Figure N:` 图注，用 `--clip` 框选即可。示例来自 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)），`$SKILL_DIR` 指 skill 安装目录：
 
 ```bash
 curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
@@ -191,21 +192,33 @@ python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip
 
 # Table 1（第 6 页；上界要留出表头）
 python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 6 1 ppo-table1.svg --clip "165,370,430,547"
+
+# 公式 (3) 与 (4)（第 2 页；合并为一个 SVG，右侧编号不包含在 clip 内）
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 2 3 ppo-formulas-3-4.svg --clip "185,446,410,509"
 ```
 
-Algorithm 1（78 KB，缩进、数学符号与上下框线完整）：
-
-<img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" width="85%">
-
-Table 1（约 70 KB，表头、横线与 11 行数据完整，未带入下方 caption）：
-
-<img src="docs/examples/ppo-table1.svg" alt="PPO Table 1 抽取结果" width="85%">
+<table>
+<tr>
+<td align="center">
+<img src="docs/examples/ppo-table1.svg" alt="PPO Table 1 抽取结果" height="90"><br>
+<sub>Table 1 · 约 70 KB · 表头、横线与 11 行数据完整，不含 caption</sub>
+</td>
+<td align="center">
+<img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" height="90"><br>
+<sub>Algorithm 1 · 78 KB · 缩进、数学符号与上下框线完整</sub>
+</td>
+<td align="center">
+<img src="docs/examples/ppo-formulas-3-4.svg" alt="PPO 公式 3-4 抽取结果" height="90"><br>
+<sub>公式 (3) 与 (4) · 约 37 KB · 两条公式合并，不含右侧编号</sub>
+</td>
+</tr>
+</table>
 
 官方图含图注、复杂矢量 SVG 反而更大等边界案例，见 [docs/comparison](docs/comparison/README.md)。
 
 ## 工作原理
 
-1. **caption 锚定**：以 `Figure N:` 图注文本行 bbox 为锚点，向「上」合并 image/vector 块并集作为图区，硬停在 caption 之前；表格与算法伪代码用 `--clip` 跳过这一步；
+1. **caption 锚定**：以 `Figure N:` 图注文本行 bbox 为锚点，向「上」合并 image/vector 块并集作为图区，硬停在 caption 之前；表格、算法伪代码与公式用 `--clip` 跳过这一步；
 2. **安全边距**：PNG 模式注入 1.2% 边距（颜色跟随背景）后自检四边；SVG 模式检查 caption 命中与输出文件大小，边界用 `check_border.py` 复检；
 3. **背景感知**：边界检查以四角颜色估计背景，深色主题图不误报；`auto` 在论文自带深色底时保留，否则补白底。
 
@@ -223,7 +236,7 @@ Table 1（约 70 KB，表头、横线与 11 行数据完整，未带入下方 ca
 - FlashAttention（arXiv:2205.14135，单栏，Figure 1 与 Figure 2）
 - vLLM（arXiv:2309.06180，双栏，Figure 5，`--clip` 模式）
 - One Fits All（arXiv:2302.11939，雷达图与模型架构图）
-- PPO（arXiv:1707.06347，Algorithm 1 与 Table 1，`--clip` 模式）
+- PPO（arXiv:1707.06347，Algorithm 1、Table 1 与公式 (3)(4)，`--clip` 模式）
 - 章节式图编号（如 `Figure 3.1`）与非冒号图注（如 `Figure 2 |`）
 - 同一 Figure 的左右子图独立提取
 

@@ -1,6 +1,6 @@
 ---
 name: pdf-figure-extract
-description: 从论文 PDF 中安全抽取 Figure、表格或算法伪代码为 SVG/PNG，保证不贴边裁剪、不含论文自带 caption、可校验。SVG 优先，适合把 arXiv/会议 PDF 中的架构图、曲线图、流程图、表格和算法框抽取到静态站点或文档。触发场景：用户说"从论文抽取 Figure N"、"抽 Algorithm 1"、"把表格截出来"、"裁一张论文图"、"把 PDF 里的架构图拿出来"、"论文图片 404 / 撕裂 / 被切边"。
+description: 从论文 PDF 中安全抽取 Figure、表格、公式或算法伪代码为 SVG/PNG，保证不贴边裁剪、不含论文自带 caption、可校验。SVG 优先，适合把 arXiv/会议 PDF 中的架构图、曲线图、流程图、表格、公式和算法框抽取到静态站点或文档。触发场景：用户说"从论文抽取 Figure N"、"抽 Algorithm 1"、"把公式 (3) 截出来"、"把表格截出来"、"裁一张论文图"、"把 PDF 里的架构图拿出来"、"论文图片 404 / 撕裂 / 被切边"。
 license: MIT
 compatibility: Requires Python 3.10+ with PyMuPDF, Pillow and numpy; poppler (pdftocairo) for SVG; librsvg (rsvg-convert) for SVG border checks.
 metadata:
@@ -24,7 +24,7 @@ metadata:
 ## 流程（四步，不要跳步）
 
 1. **下载 PDF 放进临时目录**，不要在站点图片目录里直接操作。
-2. **定位 Figure**：用 `pdftotext -layout` 或 fitz 找到 `Figure N:` 所在页与 caption 位置。
+2. **定位 Figure**：用 `pdftotext -layout` 或 fitz 找到 `Figure N:` 所在页与 caption 位置；表格、公式、算法伪代码见下文「非 Figure 内容」。
 3. **抽取**（脚本在本 skill 目录的 `scripts/` 下）：
    - 矢量内容首选 `extract_svg.py` 转 SVG，任意缩放不失真；若 PDF 里的图本身是位图，SVG 会内嵌原图，放大仍受其分辨率限制；
    - 仅当目标本身是照片 / 扫描位图时才用 `extract_fig.py` 的 PNG 模式（注入 1.2% 边距，颜色跟随背景；放大受像素限制）。
@@ -58,15 +58,15 @@ check_border.py <path...>
 
 `--background` 默认 `auto`：PDF 自带深色底时保留（`keep`），其余情况补白底（`white`）。需要透明时显式 `transparent`，让页面/幻灯片背景透出（PNG 会保留 alpha）；强制模式与墨色对比不足时会打 WARN。
 
-`--clip` 单位为 PDF 点（pt），指定时跳过 caption 锚定，用于双栏排版、特殊图注，以及表格 / 算法伪代码等没有 Figure caption 的内容；坐标先用 `get_text('dict')` 与 `get_drawings()` 量出。
+`--clip` 单位为 PDF 点（pt），指定时跳过 caption 锚定，用于双栏排版、特殊图注，以及表格 / 公式 / 算法伪代码等没有 Figure caption 的内容；坐标先用 `get_text('dict')` 与 `get_drawings()` 量出。
 
-## 非 Figure 内容（表格 / 算法伪代码）
+## 非 Figure 内容（表格 / 公式 / 算法伪代码）
 
-表格和算法框没有 `Figure N:` 这类统一图注，自动锚定不会命中，用 `--clip` 显式指定区域：
+表格、公式和算法框没有 `Figure N:` 这类统一图注，自动锚定不会命中，用 `--clip` 显式指定区域：
 
-1. 定位标题行：找到 `Table N:` / `Algorithm N` 的 bbox（表格 caption 可能在表格上方或下方，按实际版面取方向）；
+1. 定位标题行：找到 `Table N:` / `Algorithm N` / 公式编号的 bbox（表格 caption 可能在表格上方或下方，按实际版面取方向）；
 2. 量边界：打印 `get_text('dict')` 的文本行与 `get_drawings()` 的框线，取内容的上、下、左、右边界；四周留 8–10pt 余量，避免框线贴边触发边界 WARN；
-3. 抽取：`extract_svg.py <pdf> <page> <fig> <out.svg> --clip "x0,y0,x1,y1"`；
+3. 抽取：`extract_svg.py <pdf> <page> <fig> <out.svg> --clip "x0,y0,x1,y1"`；需要 PNG 时用 `extract_fig.py`，同样支持 `--clip`；
 4. 核查：`get_text(clip=...)` 确认没有带入相邻正文、另一栏或标题行，再用 `check_border.py` 复检边界。
 
 示例（PPO 论文，arXiv:1707.06347 第 5 页 Algorithm 1）：
@@ -76,7 +76,7 @@ curl -sL -o ppo.pdf https://arxiv.org/pdf/1707.06347
 python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
 ```
 
-输出是 78 KB 的矢量 SVG，缩进、数学符号与上下框线完整。
+输出是 78 KB 的矢量 SVG，缩进、数学符号与上下框线完整。Table 1、公式 (3)(4) 的完整命令与结果见 README「表格、伪代码与公式」。
 
 ## 已知坑与对策（实战沉淀）
 
@@ -89,7 +89,7 @@ python extract_svg.py ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
 | 底部 0.1–0.5% 残余墨迹 | 轴标签/tick 贴近下界（SVG 无法注入白边） | clip 下放 1~2pt；仍不行改 PNG 模式 |
 | 图内图例/标签被切（check_border 报底部墨迹但 get_text 无 caption） | 图例文字是 TXT 块，不属于 drawings，union 漏掉（如 FlashAttention Fig 1 的 "Inner Loop" 标签） | v1.0.0 起 figure_clip 自动并入「图区与 caption 之间的文本行」；旧版用 `--clip` 手动扩展 |
 | 表格被当图裁入 | 图与 Table 同页 | 打印块布局区分 `type==1`（IMG）与 TXT，clip 只圈目标 |
-| 表格 / Algorithm 抽不出来或带入正文 | 没有 `Figure N:` 图注，自动锚定不适用；表格 caption 可能在内容上方 | 用 `--clip` 手动指定区域，先打印块布局确认方位（见「非 Figure 内容」） |
+| 表格 / 公式 / Algorithm 抽不出来或带入正文 | 没有 `Figure N:` 图注，自动锚定不适用；表格 caption 可能在内容上方 | 用 `--clip` 手动指定区域，先打印块布局确认方位（见「非 Figure 内容」） |
 | SVG 内嵌位图放大仍糊 | 该图在 PDF 里本身就是照片 / 截图，SVG 只是内嵌原图 | 属正常现象；接受原图分辨率，或改用 PNG 并接受像素限制 |
 | 网页截图贴边 | 来源非 PDF | 本 skill 不适用，重新截图 |
 

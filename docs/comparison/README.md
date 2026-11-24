@@ -16,7 +16,7 @@ python "$SKILL_DIR/scripts/extract_svg.py" fa.pdf 2 1 flash-attention-figure1.sv
 
 - 论文许可：[arXiv non-exclusive distribution license 1.0](http://arxiv.org/licenses/nonexclusive-distrib/1.0/)；图形内容同时随 BSD-3-Clause 的官方仓库发布。
 
-### FlashAttention-2 benchmark 图
+### FlashAttention-2 性能对比图
 
 - 论文：Tri Dao. *FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning*. 2023. [PDF](https://tridao.me/publications/flash2/flash2.pdf)
 - 对应官方图片：`assets/flash2_a100_fwd_bwd_benchmark.png`（Figure 4，A100）；本目录保留一份副本 `flash2_a100_fwd_bwd_benchmark.png`，按官方仓库的 BSD-3-Clause 使用。
