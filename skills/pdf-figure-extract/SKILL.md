@@ -56,7 +56,7 @@ extract_svg.py <pdf> <page> <fig> <out.svg> [--margin-pt 20] [--clip x0,y0,x1,y1
 check_border.py <path...>
 ```
 
-`--background` 默认 `auto`：PDF 自带底色时保留；否则深色墨配白底，几乎全是浅色墨时才配深底（`#0f172a`），避免透明 SVG 放在深色页面上看不清。可强制 `white` / `dark`，或 `transparent` 保持透明；强制模式与墨色对比不足时会打 WARN。
+`--background` 默认 `auto`（判定逻辑在 `scripts/bgutil.py`）：PDF 自带深色底时保留；自带浅色底或画布透明时补白底；只有画布基本透明且几乎全是浅色墨时才补深底（`#0f172a`），避免透明 SVG 放在深色页面上看不清。可强制 `white` / `dark`，或 `transparent` 保持透明（PNG 会保留 alpha）；强制模式与墨色对比不足时会打 WARN。
 
 `--clip` 单位为 PDF 点（pt），指定时跳过 caption 锚定，用于双栏排版、特殊图注，以及表格 / 算法伪代码等没有 Figure caption 的内容；坐标先用 `get_text('dict')` 与 `get_drawings()` 量出。
 

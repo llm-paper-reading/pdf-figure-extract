@@ -13,7 +13,7 @@
 - **矢量优先**：架构图、流程图抽成 SVG，矢量部分任意缩放不失真（若 PDF 内的图本身是位图，SVG 会内嵌原图，放大仍受其分辨率限制）；
 - **裁切准确**：以 `Figure N:` 图注为锚点，自动排除图注、正文与页眉；
 - **自带质检**：PNG 提取后检查四边墨迹，异常以退出码 3 报 WARN；SVG 可用 `check_border.py` 复检；
-- **背景自动适配**：默认 `auto`，深色字配白底、浅色字配深底；也可强制 `white` / `dark` / `transparent`，避免透明 SVG 在深色页面看不清；
+- **背景自动适配**：默认 `auto`，按不透明比例与墨色选择白底或深底；论文自带深色底时保留。也可强制 `white` / `dark` / `transparent`，避免透明 SVG 在深色页面看不清；
 - **可复现**：纯本地脚本、无外部服务，可写进 CI，换论文或换版本后重跑；
 - **多客户端**：同一份 skill 可装到 Claude Code、Codex、Cursor 等客户端。
 
@@ -171,7 +171,7 @@ cd /tmp && mkdir work && cd work
 curl -sL -o paper.pdf "https://arxiv.org/pdf/2205.14135"
 
 # 换成你的安装路径（skills CLI 与插件安装位置不同）
-SKILL_DIR=~/skills/pdf-figure-extract
+SKILL_DIR=~/.claude/skills/pdf-figure-extract
 
 # 矢量图 → SVG（推荐，任意缩放不失真）
 python "$SKILL_DIR/scripts/extract_svg.py" paper.pdf 2 1 fig1.svg
@@ -188,14 +188,14 @@ python "$SKILL_DIR/scripts/extract_svg.py" vllm.pdf 5 5 fig5.svg --clip "318,40,
 python "$SKILL_DIR/scripts/check_border.py" path/to/images/
 ```
 
-自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可（示例见上文「效果对比」）。`--background` 默认 `auto`：按图的墨色自动加白底或深底；`transparent` 保持透明。
+自动锚定只支持 `Figure N:` 图注；表格、算法伪代码没有统一的图注结构，用 `--clip` 显式指定区域即可（示例见上文「效果对比」）。`--background` 默认 `auto`：按不透明比例与墨色选择白底或深底，论文自带深色底时保留；`transparent` 保持透明。
 
 `extract_fig.py` 与 `check_border.py` 会检查四边墨迹比例，超阈值（0.3%）即以退出码 3 报 WARN；`extract_svg.py` 负责渲染与 clip，SVG 的边界复检请配合 `check_border.py`。
 
 ## 工作原理
 
 1. **caption 锚定**：以 `Figure N:` 图注文本行 bbox 为锚点，向「上」合并 image/vector 块并集作为图区，硬停在 caption 之前；
-2. **安全边距**：PNG 模式注入 1.2% 白边后自检四边；SVG 模式校验 clip 矩形边界；
+2. **安全边距**：PNG 模式注入 1.2% 白边后自检四边；SVG 模式检查 caption 命中与输出文件大小，边界用 `check_border.py` 复检；
 3. **背景感知**：边界检查以四角颜色估计背景，深色主题图不误报。
 
 详细设计、已知坑与对策见 [skills/pdf-figure-extract/SKILL.md](skills/pdf-figure-extract/SKILL.md)。
@@ -268,4 +268,4 @@ python -m http.server -d /tmp/auto-gallery 8000   # 打开 http://localhost:8000
 
 代码与文档采用 [MIT](LICENSE)。
 
-`docs/comparison/` 下的对比图来自论文，版权归原作者：FlashAttention 图形随 BSD-3-Clause 官方仓库发布，One Fits All 采用 CC BY-NC-SA 4.0（仅限非商业使用），不在 MIT 许可范围内。详见 [docs/comparison/README.md](docs/comparison/README.md)。
+`docs/comparison/` 与 `docs/examples/` 下的对比图来自论文，版权归原作者：FlashAttention 图形随 BSD-3-Clause 官方仓库发布，One Fits All 采用 CC BY-NC-SA 4.0（仅限非商业使用），PPO 图形按 arXiv 非独占许可使用，均不在 MIT 许可范围内。详见 [docs/comparison/README.md](docs/comparison/README.md) 与 [docs/examples/README.md](docs/examples/README.md)。
