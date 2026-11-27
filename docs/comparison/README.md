@@ -16,21 +16,8 @@ python "$SKILL_DIR/scripts/extract_svg.py" fa.pdf 2 1 flash-attention-figure1.sv
 
 - 论文许可：[arXiv non-exclusive distribution license 1.0](http://arxiv.org/licenses/nonexclusive-distrib/1.0/)；图形内容同时随 BSD-3-Clause 的官方仓库发布。
 
-### FlashAttention-2 性能对比图
-
-- 论文：Tri Dao. *FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning*. 2023. [PDF](https://tridao.me/publications/flash2/flash2.pdf)
-- 对应官方图片：`assets/flash2_a100_fwd_bwd_benchmark.png`（Figure 4，A100）；本目录保留一份副本 `flash2_a100_fwd_bwd_benchmark.png`，按官方仓库的 BSD-3-Clause 使用。
-- 生成命令：
-
-```bash
-curl -sL -o flash2.pdf https://tridao.me/publications/flash2/flash2.pdf
-
-# A100（Figure 4）：图上方紧邻正文，直接锚定会带入正文末行，需显式 clip
-python "$SKILL_DIR/scripts/extract_svg.py" flash2.pdf 10 4 flash-attention2-a100-benchmark.svg --clip "57.8,366,554.2,700"
-```
-
 ## 版权
 
 - 图形内容版权归各论文作者所有；
-- FlashAttention 的官方图片（`flashattn_banner.jpg`、`flash2_a100_fwd_bwd_benchmark.png`）复制自 [Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)，按 BSD-3-Clause 使用并保留来源说明；
+- FlashAttention 的官方图片（`flashattn_banner.jpg`）复制自 [Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)，按 BSD-3-Clause 使用并保留来源说明；
 - 本目录内容不在仓库根目录 MIT 许可的覆盖范围内。如权利人希望移除相关素材，请开 issue 说明，我们会尽快处理。

@@ -16,7 +16,6 @@
 # 1. 写清单（每行一条）
 cat > /tmp/manifest.txt <<'EOF'
 /tmp/fa.pdf      2  1
-/tmp/flash2.pdf  10 4  57.8,366,554.2,700
 /tmp/ppo.pdf     5  1  60,455,535,600
 EOF
 

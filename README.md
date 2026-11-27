@@ -18,7 +18,7 @@
 
 Figure 有统一图注，可以自动锚定；表格、算法伪代码和公式没有固定格式，用 `--clip` 精确框选即可，都支持 SVG / PNG 与自动背景。
 
-### 1.1 架构图与性能对比图
+### 1.1 架构图
 
 以 **FlashAttention**（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）为例，官方仓库 README 的 `flashattn_banner.jpg` 就是论文 Figure 1：
 
@@ -35,63 +35,44 @@ Figure 有统一图注，可以自动锚定；表格、算法伪代码和公式�
 </tr>
 </table>
 
-同一仓库的 A100 性能对比图（出自 FlashAttention-2 Figure 4）：
-
-<table>
-<tr>
-<td width="50%" align="center">
-<img src="docs/comparison/flash2_a100_fwd_bwd_benchmark.png" alt="官方 A100 性能对比图" height="200"><br>
-<sub>官方 PNG：1878×1314，369 KB</sub>
-</td>
-<td width="50%" align="center">
-<img src="docs/comparison/flash-attention2-a100-benchmark.svg" alt="本技能抽取的 A100 性能对比图 SVG" height="200"><br>
-<sub>本技能 SVG：313 KB（约官方 85%）· 矢量可缩放</sub>
-</td>
-</tr>
-</table>
-
-A100 图上方紧挨正文，抽取时需按 SKILL.md 的「混入正文」对策加 `--clip "57.8,366,554.2,700"`。
-
 ### 1.2 表格、伪代码与公式
 
 表格、算法伪代码和公式没有 `Figure N:` 图注，用 `--clip` 框选即可。示例来自 PPO 论文（[arXiv:1707.06347](https://arxiv.org/abs/1707.06347)），`$SKILL_DIR` 指 skill 安装目录：
 
-<details>
-<summary>抽取命令</summary>
-
-```bash
-curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
-
-# Algorithm 1（第 5 页）
-python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
-
-# Table 1（第 6 页；上界要留出表头）
-python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 6 1 ppo-table1.svg --clip "165,370,430,547"
-
-# 公式 (3) 与 (4)（第 2 页；合并为一个 SVG，右侧编号不包含在 clip 内）
-python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 2 3 ppo-formulas-3-4.svg --clip "185,446,410,509"
-```
-
-</details>
-
 <table>
 <tr>
 <td align="center">
-<img src="docs/examples/ppo-table1.svg" alt="PPO Table 1 抽取结果" height="90"><br>
-<sub>Table 1 · 约 70 KB · 表头、横线与 11 行数据完整，不含 caption</sub>
+<img src="docs/examples/ppo-table1.svg" alt="Table 示例抽取结果" height="90"><br>
+<sub>Table 示例</sub>
 </td>
 <td align="center">
-<img src="docs/examples/ppo-algorithm1.svg" alt="PPO Algorithm 1 抽取结果" height="90"><br>
-<sub>Algorithm 1 · 78 KB · 缩进、数学符号与上下框线完整</sub>
+<img src="docs/examples/ppo-algorithm1.svg" alt="Algorithm 示例抽取结果" height="90"><br>
+<sub>Algorithm 示例</sub>
 </td>
 <td align="center">
-<img src="docs/examples/ppo-formulas-3-4.svg" alt="PPO 公式 3-4 抽取结果" height="90"><br>
-<sub>公式 (3) 与 (4) · 约 37 KB · 两条公式合并，不含右侧编号</sub>
+<img src="docs/examples/ppo-formulas-3-4.svg" alt="公式示例抽取结果" height="90"><br>
+<sub>公式示例</sub>
 </td>
 </tr>
 </table>
 
-官方图含图注、复杂矢量 SVG 反而更大等边界案例，见 [docs/comparison](docs/comparison/README.md)。
+<details>
+<summary><sub>抽取命令（可选，点击展开）</sub></summary>
+
+```bash
+curl -sL -o ppo.pdf "https://arxiv.org/pdf/1707.06347"
+
+# Algorithm 示例（第 5 页）
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 5 1 ppo-algorithm1.svg --clip "60,455,535,600"
+
+# Table 示例（第 6 页；上界要留出表头）
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 6 1 ppo-table1.svg --clip "165,370,430,547"
+
+# 公式示例（第 2 页；合并为一个 SVG，右侧编号不包含在 clip 内）
+python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 2 3 ppo-formulas-3-4.svg --clip "185,446,410,509"
+```
+
+</details>
 
 ## 2. 安装
 
@@ -100,7 +81,7 @@ python "$SKILL_DIR/scripts/extract_svg.py" ppo.pdf 2 3 ppo-formulas-3-4.svg --cl
 > 推荐用 skills CLI 一条命令安装，会自动识别已安装的客户端。需要 Node.js 22.20+。
 
 ```bash
-# 项目级安装，交互选择要装给哪些 agent
+# 交互式安装
 npx skills add llm-paper-reading/pdf-figure-extract
 ```
 
