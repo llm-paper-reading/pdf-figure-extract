@@ -18,6 +18,9 @@ import fitz
 import numpy as np
 from PIL import Image, ImageOps
 
+# -I / -P 下脚本所在目录不会进入 sys.path，显式加入以便导入同目录的 bgutil。
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+
 import bgutil
 
 

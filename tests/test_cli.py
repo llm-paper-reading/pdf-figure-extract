@@ -108,3 +108,18 @@ class TestCheckBorder:
         r = run("check_border.py", d)
         assert r.returncode == 0
         assert "a.png" in r.stdout
+
+
+class TestIsolatedMode:
+    """python -I（隔离模式）下脚本仍能导入同目录的 bgutil。
+
+    Python 3.11+ 的 -I 隐含 -P，不再把脚本目录放进 sys.path；全局安装后
+    agent 若带 -I 调用，会报 ModuleNotFoundError。
+    """
+
+    @pytest.mark.parametrize("script", ["extract_fig.py", "extract_svg.py"])
+    def test_help_with_dash_I(self, script):
+        r = subprocess.run([sys.executable, "-I", str(SCRIPTS / script), "--help"],
+                           capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        assert "usage:" in r.stdout

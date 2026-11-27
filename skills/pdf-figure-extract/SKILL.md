@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Python 3.10+ with PyMuPDF, Pillow and numpy; poppler (pdftocairo) for SVG; librsvg (rsvg-convert) for SVG border checks.
 metadata:
   author: xu-song
-  version: "1.2.0"
+  version: "1.2.1"
   repository: https://github.com/llm-paper-reading/pdf-figure-extract
 ---
 
